@@ -14,7 +14,6 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
 
-// Anonymous userId (browser-based, localStorage)
 export function getUserId() {
   let uid = localStorage.getItem('pb_uid');
   if (!uid) {
