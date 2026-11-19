@@ -114,6 +114,7 @@ const uid = getUserId();
 const list = document.getElementById('productList');
 const toast = document.getElementById('toast');
 const loader = document.getElementById('loaderOverlay');
+const video = document.getElementById('cloudinaryVideo');
 
 let allProducts = [];
 let currentCategory = 'all';
@@ -130,7 +131,6 @@ onValue(ref(db, 'mediaSettings'), (snap) => {
   const settings = snap.val() || {};
   const videoContainer = document.getElementById('videoContainer');
   const sliderContainer = document.getElementById('sliderContainer');
-  const video = document.getElementById('cloudinaryVideo');
   
   if (settings.mode === 'video' && settings.videoUrl) {
     // Show Video
@@ -139,7 +139,7 @@ onValue(ref(db, 'mediaSettings'), (snap) => {
     
     if (video.src !== settings.videoUrl) {
       video.src = settings.videoUrl;
-      video.muted = true; // মোবাইল ব্রাউজারের অটোপ্লে পলিসির জন্য
+      video.muted = true; 
       video.play().catch(e => console.log("Autoplay blocked:", e));
     }
   } else {
@@ -150,6 +150,29 @@ onValue(ref(db, 'mediaSettings'), (snap) => {
     video.src = ''; 
   }
 });
+
+// --- Auto Pause Video When Scrolled Out of View ---
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // ভিডিও স্ক্রিনে দৃশ্যমান হলে প্লে হবে (শুধু যদি ইতিমধ্যে প্লে করা থাকে)
+      if (video.src && video.paused) {
+        video.play().catch(e => console.log("Playback prevented:", e));
+      }
+    } else {
+      // ভিডিও স্ক্রিনের বাইরে চলে গেলে পজ হবে এবং সাউন্ড বন্ধ হবে
+      if (!video.paused) {
+        video.pause();
+      }
+    }
+  });
+}, { threshold: 0.1 }); // ভিডিওর ১০% অংশ দৃশ্যমান হলে ট্রিগার হবে
+
+// ভিডিও কন্টেইনার অবজার্ভ করা শুরু করা
+const videoContainer = document.getElementById('videoContainer');
+if (videoContainer) {
+  observer.observe(videoContainer);
+}
 
 // --- Slider Logic ---
 let slideIndex = 0;
