@@ -15,10 +15,8 @@
   .cart-icon{position:relative;font-size:22px;text-decoration:none;color:#fff}
   .cart-count{position:absolute;top:-6px;right:-8px;background:#fff;color:#ff6b00;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
   
-  /* Media Containers */
+  /* Media Containers (Video & Slider) */
   .media-container { width: 100%; height: 200px; background: #000; display: none; position: relative; overflow: hidden; }
-  
-  /* Cloudinary Video */
   .video-container video { width: 100%; height: 100%; object-fit: cover; }
 
   /* Image Slider */
@@ -79,7 +77,8 @@
 
 <!-- Media Section (Video OR Slider) -->
 <div id="videoContainer" class="media-container">
-  <video id="cloudinaryVideo" controls playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+  <!-- autoplay, muted, loop এবং playsinline যোগ করা হয়েছে -->
+  <video id="cloudinaryVideo" autoplay muted loop playsinline controls style="width:100%; height:100%; object-fit:cover;"></video>
 </div>
 
 <div id="sliderContainer" class="media-container">
@@ -131,22 +130,24 @@ onValue(ref(db, 'mediaSettings'), (snap) => {
   const settings = snap.val() || {};
   const videoContainer = document.getElementById('videoContainer');
   const sliderContainer = document.getElementById('sliderContainer');
+  const video = document.getElementById('cloudinaryVideo');
   
   if (settings.mode === 'video' && settings.videoUrl) {
     // Show Video
     videoContainer.style.display = 'block';
     sliderContainer.style.display = 'none';
-    const video = document.getElementById('cloudinaryVideo');
+    
     if (video.src !== settings.videoUrl) {
       video.src = settings.videoUrl;
+      video.muted = true; // মোবাইল ব্রাউজারের অটোপ্লে পলিসির জন্য
+      video.play().catch(e => console.log("Autoplay blocked:", e));
     }
   } else {
     // Show Slider
     videoContainer.style.display = 'none';
     sliderContainer.style.display = 'block';
-    const video = document.getElementById('cloudinaryVideo');
     video.pause();
-    video.src = ''; // Clear video to stop loading
+    video.src = ''; 
   }
 });
 
