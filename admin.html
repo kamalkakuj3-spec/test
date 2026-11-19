@@ -28,12 +28,15 @@
   .msg-box{display:none;padding:12px;border-radius:8px;font-size:14px;margin-bottom:12px;text-align:center;font-weight:600}
   .msg-box.success{background:#d4edda;color:#155724;display:block;border:1px solid #c3e6cb}
   .msg-box.error{background:#f8d7da;color:#721c24;display:block;border:1px solid #f5c6cb}
+  
+  /* Image optimization in product list */
   .product-row{background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  .product-row img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#eee;flex-shrink:0}
+  .product-row img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#eee;flex-shrink:0;pointer-events:none;user-select:none;-webkit-user-drag:none}
   .product-row .info{flex:1;min-width:0}
   .product-row .info h4{font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#333}
   .product-row .info .p{color:#ff6b00;font-size:14px;font-weight:700}
   .del-btn{background:#ffe6e6;color:#e74c3c;border:none;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+  
   .order-row{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .order-row h4{font-size:15px;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center}
   .order-row .meta{font-size:13px;color:#666;line-height:1.6;margin-bottom:10px;background:#f9f9f9;padding:10px;border-radius:8px}
@@ -204,7 +207,7 @@ function initAdmin() {
       const row = document.createElement('div');
       row.className = 'product-row';
       row.innerHTML = `
-        <img src="${driveUrl(p.image)}" alt="">
+        <img src="${driveUrl(p.image)}" alt="" loading="lazy">
         <div class="info">
           <h4>${p.name}</h4>
           <div class="p">৳${p.price}</div>
