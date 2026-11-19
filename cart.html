@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - Pikari Bazar</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:130px}
+  
+  header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;
+         padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  header h1{font-size:18px;flex:1}
+  header a{color:#fff;text-decoration:none;font-size:22px}
+  
+  .container{padding:12px}
+  .item{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;
+        display:flex;gap:12px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+  .item img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#eee;flex-shrink:0}
+  .item-info{flex:1;min-width:0}
+  .item-info h3{font-size:14px;font-weight:600;margin-bottom:4px;
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item-info .price{color:#ff6b00;font-weight:700;font-size:14px}
+  
+  .qty-controls{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .qty-btn{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:6px;
+           font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .qty-btn:active{background:#f0f0f0}
+  .qty-num{font-weight:600;min-width:20px;text-align:center;font-size:14px}
+  
+  .remove-btn{background:none;border:none;color:#e74c3c;font-size:20px;cursor:pointer;padding:4px}
+  
+  .summary{position:fixed;bottom:70px;left:0;right:0;background:#fff;padding:12px 16px;
+           border-top:1px solid #eee;box-shadow:0 -2px 8px rgba(0,0,0,.05);z-index:50}
+  .summary-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}
+  .summary-row.total{font-size:17px;font-weight:700;color:#ff6b00;margin-bottom:10px}
+  .checkout-btn{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
+                font-size:15px;font-weight:700;cursor:pointer}
+  .checkout-btn:active{background:#e55f00}
+  .checkout-btn:disabled{background:#ccc;cursor:not-allowed}
+  
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;
+             display:flex;justify-content:space-around;padding:8px 0;z-index:100}
+  nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px}
+  nav.bottom a.active{color:#ff6b00}
+  nav.bottom a span{display:block;font-size:20px;margin-bottom:2px}
+  
+  .empty{text-align:center;padding:80px 20px;color:#888}
+  .empty span{font-size:64px;display:block;margin-bottom:16px}
+  .empty a{display:inline-block;margin-top:16px;padding:10px 24px;background:#ff6b00;color:#fff;
+           text-decoration:none;border-radius:8px;font-weight:600}
+  
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;
+         align-items:flex-end;justify-content:center}
+  .modal.show{display:flex}
+  .modal-content{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:500px;
+                 max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal h2{font-size:18px;margin-bottom:16px;text-align:center}
+  .form-group{margin-bottom:14px}
+  .form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#444}
+  .form-group input,.form-group textarea,.form-group select{
+    width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;
+    font-family:inherit;background:#f9f9f9}
+  .form-group textarea{resize:vertical;min-height:70px}
+  .modal-btn{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
+             font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+  .modal-btn.cancel{background:#eee;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">←</a>
+  <h1>🛒 My Cart</h1>
+</header>
+
+<div class="container" id="cartList"></div>
+
+<div class="summary" id="summary" style="display:none">
+  <div class="summary-row"><span>Subtotal</span><span id="subtotal">৳0</span></div>
+  <div class="summary-row"><span>Delivery</span><span id="delivery">৳60</span></div>
+  <div class="summary-row total"><span>Total</span><span id="grandTotal">৳0</span></div>
+  <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+</div>
+
+<nav class="bottom">
+  <a href="index.html"><span>🏠</span>Home</a>
+  <a href="cart.html" class="active"><span>🛒</span>Cart</a>
+  <a href="admin.html"><span>⚙️</span>Admin</a>
+</nav>
+
+<!-- Checkout Modal -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-content">
+    <h2>📋 Order Info</h2>
+    <div class="form-group">
+      <label>নাম *</label>
+      <input id="cName" placeholder="আপনার নাম" required>
+    </div>
+    <div class="form-group">
+      <label>মোবাইল *</label>
+      <input id="cPhone" type="tel" placeholder="01XXXXXXXXX" required>
+    </div>
+    <div class="form-group">
+      <label>ঠিকানা *</label>
+      <textarea id="cAddress" placeholder="বিস্তারিত ঠিকানা" required></textarea>
+    </div>
+    <div class="form-group">
+      <label>পেমেন্ট</label>
+      <select id="cPayment">
+        <option value="cod">Cash on Delivery</option>
+        <option value="bkash">bKash (manual)</option>
+      </select>
+    </div>
+    <button class="modal-btn" id="confirmOrder">Confirm Order</button>
+    <button class="modal-btn cancel" id="cancelModal">Cancel</button>
+  </div>
+</div>
+
+<script type="module">
+import { db, getUserId } from './config.js';
+import { ref, onValue, remove, push, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const uid = getUserId();
+const DELIVERY = 60;
+let cartData = {};
+
+function driveUrl(url) {
+  if (!url) return 'https://via.placeholder.com/100?text=No';
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w200`;
+  return url;
+}
+
+onValue(ref(db, `carts/${uid}`), (snap) => {
+  cartData = snap.val() || {};
+  render();
+});
+
+function render() {
+  const list = document.getElementById('cartList');
+  const summary = document.getElementById('summary');
+  const entries = Object.entries(cartData);
+  
+  if (entries.length === 0) {
+    list.innerHTML = `<div class="empty">
+      <span>🛒</span>
+      <p>Cart is empty</p>
+      <a href="index.html">Shop Now</a>
+    </div>`;
+    summary.style.display = 'none';
+    return;
+  }
+  
+  summary.style.display = 'block';
+  list.innerHTML = '';
+  let subtotal = 0;
+  
+  entries.forEach(([id, i]) => {
+    subtotal += i.price * i.qty;
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `
+      <img src="${driveUrl(i.image)}" alt="">
+      <div class="item-info">
+        <h3>${i.name}</h3>
+        <p class="price">৳${i.price}</p>
+        <div class="qty-controls">
+          <button class="qty-btn" data-action="dec">−</button>
+          <span class="qty-num">${i.qty}</span>
+          <button class="qty-btn" data-action="inc">+</button>
+        </div>
+      </div>
+      <button class="remove-btn">🗑</button>`;
+    
+    div.querySelector('[data-action="inc"]').onclick = () => 
+      update(ref(db, `carts/${uid}/${id}`), { qty: i.qty + 1 });
+    div.querySelector('[data-action="dec"]').onclick = () => {
+      if (i.qty <= 1) remove(ref(db, `carts/${uid}/${id}`));
+      else update(ref(db, `carts/${uid}/${id}`), { qty: i.qty - 1 });
+    };
+    div.querySelector('.remove-btn').onclick = () => 
+      remove(ref(db, `carts/${uid}/${id}`));
+    
+    list.appendChild(div);
+  });
+  
+  document.getElementById('subtotal').textContent = '৳' + subtotal;
+  document.getElementById('delivery').textContent = '৳' + DELIVERY;
+  document.getElementById('grandTotal').textContent = '৳' + (subtotal + DELIVERY);
+}
+
+// Checkout flow
+document.getElementById('checkoutBtn').onclick = () => {
+  document.getElementById('checkoutModal').classList.add('show');
+};
+document.getElementById('cancelModal').onclick = () => {
+  document.getElementById('checkoutModal').classList.remove('show');
+};
+
+document.getElementById('confirmOrder').onclick = async () => {
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const address = document.getElementById('cAddress').value.trim();
+  const payment = document.getElementById('cPayment').value;
+  
+  if (!name || !phone || !address) return alert('সব তথ্য পূরণ করুন');
+  
+  const subtotal = Object.values(cartData).reduce((s, i) => s + i.price * i.qty, 0);
+  const orderRef = push(ref(db, 'orders'));
+  await set(orderRef, {
+    userId: uid,
+    customer: { name, phone, address },
+    items: cartData,
+    subtotal,
+    delivery: DELIVERY,
+    total: subtotal + DELIVERY,
+    payment,
+    status: 'pending',
+    createdAt: Date.now()
+  });
+  
+  await remove(ref(db, `carts/${uid}`));
+  document.getElementById('checkoutModal').classList.remove('show');
+  alert('✅ Order confirmed! We will contact you soon.');
+  location.href = 'index.html';
+};
+</script>
+</body>
+</html>

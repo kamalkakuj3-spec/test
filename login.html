@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Pikari Bazar</title>
+  <style>
+    body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f5f5f5}
+    .box{background:#fff;padding:30px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);width:320px}
+    input{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
+    button{width:100%;padding:10px;background:#ff6b00;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
+    .toggle{text-align:center;margin-top:15px;color:#ff6b00;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 id="title">Login</h2>
+    <input type="text" id="name" placeholder="Name" style="display:none">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="submitBtn">Login</button>
+    <p class="toggle" id="toggle">নতুন? Register করুন</p>
+    <p id="msg" style="color:red;text-align:center"></p>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword,
+      updateProfile 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    let isLogin = true;
+    const nameInput = document.getElementById('name');
+    const title = document.getElementById('title');
+    const toggle = document.getElementById('toggle');
+    const msg = document.getElementById('msg');
+
+    toggle.onclick = () => {
+      isLogin = !isLogin;
+      title.textContent = isLogin ? 'Login' : 'Register';
+      nameInput.style.display = isLogin ? 'none' : 'block';
+      document.getElementById('submitBtn').textContent = isLogin ? 'Login' : 'Register';
+      toggle.textContent = isLogin ? 'নতুন? Register করুন' : 'আগে থেকেই আছে? Login করুন';
+    };
+
+    document.getElementById('submitBtn').onclick = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const name = nameInput.value;
+      msg.textContent = '';
+      try {
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(cred.user, { displayName: name });
+          await set(ref(db, 'users/' + cred.user.uid), {
+            name, email, role: 'user', createdAt: Date.now()
+          });
+        }
+        window.location.href = 'index.html';
+      } catch (e) {
+        msg.textContent = e.message;
+      }
+    };
+  </script>
+</body>
+</html>
