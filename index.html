@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pikari Bazar</title>
+<!-- Cloudinary Video Player CSS -->
+<link href="https://unpkg.com/cloudinary-video-player@1.9.9/dist/cld-video-player.min.css" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:70px}
@@ -13,8 +15,13 @@
   .cart-icon{position:relative;font-size:22px;text-decoration:none;color:#fff}
   .cart-count{position:absolute;top:-6px;right:-8px;background:#fff;color:#ff6b00;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
   
+  /* Media Containers */
+  .media-container { width: 100%; height: 200px; background: #000; display: none; position: relative; overflow: hidden; }
+  
+  /* Cloudinary Video */
+  .video-container video { width: 100%; height: 100%; object-fit: cover; }
+
   /* Image Slider */
-  .slider-container { width: 100%; height: 180px; background: #fff; overflow: hidden; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,.05); display: none; }
   .slider-track { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
   .slider-slide { min-width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #f0f0f0; }
   .slider-slide img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; -webkit-user-drag: none; }
@@ -23,46 +30,19 @@
   .slider-dot.active { background: #fff; width: 20px; border-radius: 4px; }
 
   /* Marquee Notice */
-  .notice-bar {
-    display: none;
-    background: #222;
-    color: #ff6b00;
-    padding: 8px 0;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 14px;
-    font-weight: 600;
-    position: relative;
-    box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2);
-  }
-  .notice-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 15s linear infinite;
-  }
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
+  .notice-bar { display: none; background: #222; color: #ff6b00; padding: 8px 0; overflow: hidden; white-space: nowrap; font-size: 14px; font-weight: 600; position: relative; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2); }
+  .notice-text { display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+  /* Category Filter */
+  .category-bar { display: flex; overflow-x: auto; white-space: nowrap; padding: 10px 12px; gap: 8px; background: #fff; border-bottom: 1px solid #eee; scrollbar-width: none; }
+  .category-bar::-webkit-scrollbar { display: none; }
+  .cat-btn { padding: 6px 14px; border: 1px solid #ddd; border-radius: 20px; background: #f9f9f9; font-size: 13px; font-weight: 600; color: #555; cursor: pointer; transition: 0.2s; }
+  .cat-btn.active { background: #ff6b00; color: #fff; border-color: #ff6b00; }
 
   /* Center Spinner Loader */
-  .loader-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(245, 245, 247, 0.8);
-    backdrop-filter: blur(3px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  .spinner {
-    width: 50px; height: 50px;
-    border: 5px solid #ffe6d9;
-    border-top: 5px solid #ff6b00;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
+  .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(245, 245, 247, 0.8); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+  .spinner { width: 50px; height: 50px; border: 5px solid #ffe6d9; border-top: 5px solid #ff6b00; border-radius: 50%; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
   /* Products Grid */
@@ -97,15 +77,24 @@
   <a href="cart.html" class="cart-icon">🛒<span class="cart-count" id="cartCount">0</span></a>
 </header>
 
-<!-- Image Slider -->
-<div class="slider-container" id="sliderContainer">
+<!-- Media Section (Video OR Slider) -->
+<div id="videoContainer" class="media-container">
+  <video id="cloudinaryVideo" controls playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+</div>
+
+<div id="sliderContainer" class="media-container">
   <div class="slider-track" id="sliderTrack"></div>
   <div class="slider-dots" id="sliderDots"></div>
 </div>
 
-<!-- Marquee Notice Bar -->
+<!-- Marquee Notice -->
 <div class="notice-bar" id="noticeBar">
   <div class="notice-text" id="noticeText"></div>
+</div>
+
+<!-- Category Filter -->
+<div class="category-bar" id="categoryBar">
+  <div class="cat-btn active" data-cat="all">All</div>
 </div>
 
 <div class="products" id="productList"></div>
@@ -127,6 +116,9 @@ const list = document.getElementById('productList');
 const toast = document.getElementById('toast');
 const loader = document.getElementById('loaderOverlay');
 
+let allProducts = [];
+let currentCategory = 'all';
+
 function driveUrl(url, size = 400) {
   if (!url) return 'https://via.placeholder.com/300x300?text=No+Image';
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -134,16 +126,27 @@ function driveUrl(url, size = 400) {
   return url;
 }
 
-// --- Notice Marquee Logic ---
-onValue(ref(db, 'notice'), (snap) => {
-  const data = snap.val();
-  const bar = document.getElementById('noticeBar');
-  const textEl = document.getElementById('noticeText');
-  if (data && data.text) {
-    textEl.textContent = data.text;
-    bar.style.display = 'block';
+// --- Media Logic (Video OR Slider based on admin setting) ---
+onValue(ref(db, 'mediaSettings'), (snap) => {
+  const settings = snap.val() || {};
+  const videoContainer = document.getElementById('videoContainer');
+  const sliderContainer = document.getElementById('sliderContainer');
+  
+  if (settings.mode === 'video' && settings.videoUrl) {
+    // Show Video
+    videoContainer.style.display = 'block';
+    sliderContainer.style.display = 'none';
+    const video = document.getElementById('cloudinaryVideo');
+    if (video.src !== settings.videoUrl) {
+      video.src = settings.videoUrl;
+    }
   } else {
-    bar.style.display = 'none';
+    // Show Slider
+    videoContainer.style.display = 'none';
+    sliderContainer.style.display = 'block';
+    const video = document.getElementById('cloudinaryVideo');
+    video.pause();
+    video.src = ''; // Clear video to stop loading
   }
 });
 
@@ -171,11 +174,9 @@ function startAutoSlide() {
 
 onValue(ref(db, 'slider'), (snap) => {
   const entries = Object.entries(snap.val() || {}).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-  const container = document.getElementById('sliderContainer');
   const track = document.getElementById('sliderTrack');
   const dotsContainer = document.getElementById('sliderDots');
-  if (entries.length === 0) { container.style.display = 'none'; return; }
-  container.style.display = 'block';
+  if (entries.length === 0) { totalSlides = 0; return; }
   track.innerHTML = ''; dotsContainer.innerHTML = '';
   totalSlides = entries.length; slideIndex = 0;
   entries.forEach(([id, s], i) => {
@@ -191,43 +192,71 @@ onValue(ref(db, 'slider'), (snap) => {
   startAutoSlide();
 });
 
-// Swipe Support
-let startX = 0; let isDragging = false;
-const sliderContainer = document.getElementById('sliderContainer');
-sliderContainer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isDragging = true; clearInterval(slideInterval); }, {passive: true});
-sliderContainer.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  const diff = startX - e.touches[0].clientX;
-  if (Math.abs(diff) > 50) { if (diff > 0) goToSlide(slideIndex + 1); else goToSlide(slideIndex - 1); isDragging = false; startAutoSlide(); }
-}, {passive: true});
-sliderContainer.addEventListener('touchend', () => { isDragging = false; startAutoSlide(); });
+// --- Notice Marquee ---
+onValue(ref(db, 'notice'), (snap) => {
+  const data = snap.val();
+  const bar = document.getElementById('noticeBar');
+  const textEl = document.getElementById('noticeText');
+  if (data && data.text) {
+    textEl.textContent = data.text;
+    bar.style.display = 'block';
+  } else {
+    bar.style.display = 'none';
+  }
+});
+
+// --- Category Logic ---
+onValue(ref(db, 'categories'), (snap) => {
+  const data = snap.val() || {};
+  const bar = document.getElementById('categoryBar');
+  bar.innerHTML = '<div class="cat-btn active" data-cat="all">All</div>';
+  Object.values(data).forEach(c => {
+    bar.innerHTML += `<div class="cat-btn" data-cat="${c.name}">${c.name}</div>`;
+  });
+  
+  bar.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.onclick = () => {
+      bar.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.cat;
+      renderProducts();
+    };
+  });
+});
 
 // --- Products Logic ---
 onValue(ref(db, 'products'), (snap) => {
   const data = snap.val() || {};
-  const items = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-  list.innerHTML = '';
-  
-  if (items.length === 0) {
-    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span>📦</span>No products yet</div>`;
-  } else {
-    items.forEach(([id, p]) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img src="${driveUrl(p.image, 400)}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Error'">
-        <div class="card-body">
-          <h3>${p.name}</h3>
-          <p class="price">৳${p.price}</p>
-          <button class="btn" data-id="${id}">Add to Cart</button>
-        </div>`;
-      card.querySelector('.btn').onclick = () => addToCart(id, p);
-      list.appendChild(card);
-    });
-  }
-  // Hide Loader after data is loaded
+  allProducts = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  renderProducts();
   if (loader) loader.style.display = 'none';
 });
+
+function renderProducts() {
+  list.innerHTML = '';
+  const filtered = currentCategory === 'all' 
+    ? allProducts 
+    : allProducts.filter(([id, p]) => p.category === currentCategory);
+    
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><span>📦</span>No products found</div>`;
+    return;
+  }
+  
+  filtered.forEach(([id, p]) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${driveUrl(p.image, 400)}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Error'">
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <p class="price">৳${p.price}</p>
+        <button class="btn" data-id="${id}">Add to Cart</button>
+      </div>`;
+    card.querySelector('.btn').onclick = () => addToCart(id, p);
+    list.appendChild(card);
+  });
+}
 
 async function addToCart(pid, product) {
   const cartRef = ref(db, `carts/${uid}/${pid}`);
