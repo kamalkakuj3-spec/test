@@ -29,7 +29,6 @@
   .msg-box.success{background:#d4edda;color:#155724;display:block;border:1px solid #c3e6cb}
   .msg-box.error{background:#f8d7da;color:#721c24;display:block;border:1px solid #f5c6cb}
   
-  /* Image optimization in product list */
   .product-row{background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .product-row img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#eee;flex-shrink:0;pointer-events:none;user-select:none;-webkit-user-drag:none}
   .product-row .info{flex:1;min-width:0}
@@ -45,6 +44,7 @@
   .status-select{padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-weight:600;background:#f9f9f9;width:100%;outline:none;cursor:pointer}
   .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}
   .pending{background:#f39c12}.confirmed{background:#3498db}.shipped{background:#9b59b6}.delivered{background:#27ae60}.cancelled{background:#e74c3c}
+  
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
   nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px;font-weight:600}
   nav.bottom a.active{color:#ff6b00}
@@ -64,11 +64,14 @@
 </div>
 
 <div id="mainPanel" style="display:none">
+  <!-- Tabs (Slider যোগ করা হয়েছে) -->
   <div class="tabs">
     <button class="active" data-tab="products">📦 Products</button>
+    <button data-tab="slider">🖼️ Slider</button>
     <button data-tab="orders">🛒 Orders</button>
   </div>
   
+  <!-- Products Tab -->
   <div id="tab-products" class="panel">
     <div class="form-card">
       <h3>➕ Add Product</h3>
@@ -84,6 +87,20 @@
     <div id="productList"></div>
   </div>
   
+  <!-- Slider Tab (নতুন) -->
+  <div id="tab-slider" class="panel" style="display:none">
+    <div class="form-card">
+      <h3>➕ Add Slider Image</h3>
+      <div id="sliderMsg" class="msg-box"></div>
+      <input id="sliderImage" placeholder="Google Drive image link *">
+      <p class="hint">ড্রাইভ লিংক দিন (অবশ্যই 'Anyone with link' করা থাকতে হবে)</p>
+      <button class="btn-primary" id="addSliderBtn">Add to Slider</button>
+    </div>
+    <h3 style="margin:16px 4px 10px;font-size:16px;color:#333">All Slider Images</h3>
+    <div id="sliderList"></div>
+  </div>
+  
+  <!-- Orders Tab -->
   <div id="tab-orders" class="panel" style="display:none">
     <h3 style="margin-bottom:10px;font-size:16px;color:#333">All Orders</h3>
     <div id="orderList"></div>
@@ -138,119 +155,132 @@ function driveUrl(url) {
 }
 
 function initAdmin() {
+  // Tabs Switch Logic
   document.querySelectorAll('.tabs button').forEach(b => {
     b.onclick = () => {
       document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
-      document.getElementById('tab-products').style.display = b.dataset.tab === 'products' ? 'block' : 'none';
-      document.getElementById('tab-orders').style.display = b.dataset.tab === 'orders' ? 'block' : 'none';
+      
+      const tabName = b.dataset.tab;
+      document.getElementById('tab-products').style.display = tabName === 'products' ? 'block' : 'none';
+      document.getElementById('tab-slider').style.display = tabName === 'slider' ? 'block' : 'none';
+      document.getElementById('tab-orders').style.display = tabName === 'orders' ? 'block' : 'none';
     };
   });
   
+  // --- Product Add Logic ---
   document.getElementById('addProductBtn').onclick = async () => {
     const name = document.getElementById('pName').value.trim();
     const price = +document.getElementById('pPrice').value;
     const image = document.getElementById('pImage').value.trim();
     const desc = document.getElementById('pDesc').value.trim();
-    
     const msgBox = document.getElementById('adminMsg');
     const btn = document.getElementById('addProductBtn');
 
-    msgBox.className = 'msg-box';
-    msgBox.textContent = '';
+    msgBox.className = 'msg-box'; msgBox.textContent = '';
 
     if (!name || !price) {
       msgBox.textContent = '❌ প্রোডাক্টের নাম এবং দাম অবশ্যই দিতে হবে।';
-      msgBox.className = 'msg-box error';
-      return;
+      msgBox.className = 'msg-box error'; return;
     }
 
-    btn.textContent = 'Adding...';
-    btn.disabled = true;
-
+    btn.textContent = 'Adding...'; btn.disabled = true;
     try {
-      await push(ref(db, 'products'), {
-        name, price, image, desc, createdAt: Date.now()
-      });
-      
+      await push(ref(db, 'products'), { name, price, image, desc, createdAt: Date.now() });
       document.getElementById('pName').value = '';
       document.getElementById('pPrice').value = '';
       document.getElementById('pImage').value = '';
       document.getElementById('pDesc').value = '';
-      
       msgBox.textContent = '✅ প্রোডাক্ট সফলভাবে যোগ করা হয়েছে!';
       msgBox.className = 'msg-box success';
-      
       setTimeout(() => { msgBox.className = 'msg-box'; }, 3000);
-
     } catch (error) {
       msgBox.textContent = '❌ সমস্যা হয়েছে: ' + error.message;
       msgBox.className = 'msg-box error';
     } finally {
-      btn.textContent = 'Add Product';
-      btn.disabled = false;
+      btn.textContent = 'Add Product'; btn.disabled = false;
     }
   };
   
+  // --- Load Products ---
   onValue(ref(db, 'products'), (snap) => {
     const list = document.getElementById('productList');
     list.innerHTML = '';
     const data = snap.val() || {};
     const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-    
-    if (entries.length === 0) {
-      list.innerHTML = '<p class="empty-text">কোনো প্রোডাক্ট নেই</p>';
-      return;
-    }
-    
+    if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো প্রোডাক্ট নেই</p>'; return; }
     entries.forEach(([id, p]) => {
       const row = document.createElement('div');
       row.className = 'product-row';
-      row.innerHTML = `
-        <img src="${driveUrl(p.image)}" alt="" loading="lazy">
-        <div class="info">
-          <h4>${p.name}</h4>
-          <div class="p">৳${p.price}</div>
-        </div>
-        <button class="del-btn" data-id="${id}">Delete</button>`;
-        
+      row.innerHTML = `<img src="${driveUrl(p.image)}" alt=""><div class="info"><h4>${p.name}</h4><div class="p">৳${p.price}</div></div><button class="del-btn" data-id="${id}">Delete</button>`;
       row.querySelector('.del-btn').onclick = () => {
-        if (confirm('আপনি কি নিশ্চিত এই প্রোডাক্টটি ডিলিট করতে চান?')) {
-          remove(ref(db, 'products/' + id));
-        }
+        if (confirm('আপনি কি নিশ্চিত এই প্রোডাক্টটি ডিলিট করতে চান?')) remove(ref(db, 'products/' + id));
       };
       list.appendChild(row);
     });
   });
-  
+
+  // --- Slider Add Logic ---
+  document.getElementById('addSliderBtn').onclick = async () => {
+    const image = document.getElementById('sliderImage').value.trim();
+    const msgBox = document.getElementById('sliderMsg');
+    const btn = document.getElementById('addSliderBtn');
+
+    msgBox.className = 'msg-box'; msgBox.textContent = '';
+
+    if (!image) {
+      msgBox.textContent = '❌ ছবির লিংক দিতে হবে।';
+      msgBox.className = 'msg-box error'; return;
+    }
+
+    btn.textContent = 'Adding...'; btn.disabled = true;
+    try {
+      await push(ref(db, 'slider'), { image, createdAt: Date.now() });
+      document.getElementById('sliderImage').value = '';
+      msgBox.textContent = '✅ স্লাইডার ছবি সফলভাবে যোগ করা হয়েছে!';
+      msgBox.className = 'msg-box success';
+      setTimeout(() => { msgBox.className = 'msg-box'; }, 3000);
+    } catch (error) {
+      msgBox.textContent = '❌ সমস্যা হয়েছে: ' + error.message;
+      msgBox.className = 'msg-box error';
+    } finally {
+      btn.textContent = 'Add to Slider'; btn.disabled = false;
+    }
+  };
+
+  // --- Load Slider Images ---
+  onValue(ref(db, 'slider'), (snap) => {
+    const list = document.getElementById('sliderList');
+    list.innerHTML = '';
+    const data = snap.val() || {};
+    const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো স্লাইডার ছবি নেই</p>'; return; }
+    entries.forEach(([id, s]) => {
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `<img src="${driveUrl(s.image)}" alt=""><div class="info"><h4>Slider Image</h4><div class="p">Added</div></div><button class="del-btn" data-id="${id}">Delete</button>`;
+      row.querySelector('.del-btn').onclick = () => {
+        if (confirm('আপনি কি নিশ্চিত এই ছবিটি ডিলিট করতে চান?')) remove(ref(db, 'slider/' + id));
+      };
+      list.appendChild(row);
+    });
+  });
+
+  // --- Load Orders ---
   onValue(ref(db, 'orders'), (snap) => {
     const list = document.getElementById('orderList');
     list.innerHTML = '';
     const data = snap.val() || {};
     const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-    
-    if (entries.length === 0) {
-      list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>';
-      return;
-    }
-    
+    if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>'; return; }
     entries.forEach(([id, o]) => {
       const items = Object.values(o.items || {}).map(i => `${i.name} ×${i.qty}`).join(', ');
       const date = new Date(o.createdAt).toLocaleString('bn-BD');
-      
       const row = document.createElement('div');
       row.className = 'order-row';
       row.innerHTML = `
-        <h4>
-          ${o.customer?.name || 'Unknown'}
-          <span class="badge ${o.status}">${o.status}</span>
-        </h4>
-        <div class="meta">
-          📞 <b>${o.customer?.phone || ''}</b><br>
-          📍 ${o.customer?.address || ''}<br>
-          💰 Total: <b>৳${o.total}</b> (${o.payment.toUpperCase()})<br>
-          🕐 ${date}
-        </div>
+        <h4>${o.customer?.name || 'Unknown'} <span class="badge ${o.status}">${o.status}</span></h4>
+        <div class="meta">📞 <b>${o.customer?.phone || ''}</b><br>📍 ${o.customer?.address || ''}<br>💰 Total: <b>৳${o.total}</b> (${o.payment.toUpperCase()})<br>🕐 ${date}</div>
         <div class="items">📦 <b>Items:</b> ${items}</div>
         <select class="status-select" data-id="${id}">
           <option value="pending" ${o.status==='pending'?'selected':''}>⏳ Pending</option>
@@ -259,10 +289,7 @@ function initAdmin() {
           <option value="delivered" ${o.status==='delivered'?'selected':''}>📦 Delivered</option>
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Cancelled</option>
         </select>`;
-        
-      row.querySelector('.status-select').onchange = (e) => {
-        update(ref(db, 'orders/' + id), { status: e.target.value });
-      };
+      row.querySelector('.status-select').onchange = (e) => update(ref(db, 'orders/' + id), { status: e.target.value });
       list.appendChild(row);
     });
   });
