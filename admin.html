@@ -7,72 +7,45 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:70px}
-  
-  /* Header */
   header{position:sticky;top:0;z-index:100;background:#1a1a2e;color:#fff;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
   header h1{font-size:18px;font-weight:700}
-  
-  /* Login Screen */
   .login-screen{padding:40px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
   .login-screen p{font-size:16px;color:#444;margin-bottom:15px;font-weight:600}
   .login-screen input{width:100%;max-width:320px;padding:14px;border:1px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:10px;outline:none}
-  .login-screen input:focus{border-color:#ff6b00}
   .login-screen button{width:100%;max-width:320px;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
-  
-  /* Tabs */
   .tabs{display:flex;background:#fff;border-bottom:1px solid #eee;position:sticky;top:53px;z-index:99}
   .tabs button{flex:1;padding:14px;border:none;background:none;font-size:14px;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;transition:0.2s}
   .tabs button.active{color:#ff6b00;border-bottom-color:#ff6b00}
-  
-  /* Panels */
   .panel{padding:12px;animation: fadeIn 0.3s ease}
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  
-  /* Form Card */
   .form-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
   .form-card h3{font-size:15px;margin-bottom:12px;color:#333}
   .form-card input,.form-card textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:inherit;background:#f9f9f9;outline:none}
-  .form-card input:focus,.form-card textarea:focus{border-color:#ff6b00;background:#fff}
   .form-card textarea{min-height:60px;resize:vertical}
   .form-card .hint{font-size:11px;color:#888;margin:-4px 0 12px}
-  
-  /* Buttons */
-  .btn-primary{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;transition:0.2s}
+  .btn-primary{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer}
   .btn-primary:disabled{background:#ccc;cursor:not-allowed}
-  .btn-primary:active{background:#e55f00}
-  
-  /* Message Box (Success/Error) */
   .msg-box{display:none;padding:12px;border-radius:8px;font-size:14px;margin-bottom:12px;text-align:center;font-weight:600}
   .msg-box.success{background:#d4edda;color:#155724;display:block;border:1px solid #c3e6cb}
   .msg-box.error{background:#f8d7da;color:#721c24;display:block;border:1px solid #f5c6cb}
-  
-  /* Product List */
   .product-row{background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .product-row img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#eee;flex-shrink:0}
   .product-row .info{flex:1;min-width:0}
   .product-row .info h4{font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#333}
   .product-row .info .p{color:#ff6b00;font-size:14px;font-weight:700}
   .del-btn{background:#ffe6e6;color:#e74c3c;border:none;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
-  
-  /* Order List */
   .order-row{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .order-row h4{font-size:15px;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center}
   .order-row .meta{font-size:13px;color:#666;line-height:1.6;margin-bottom:10px;background:#f9f9f9;padding:10px;border-radius:8px}
   .order-row .meta b{color:#222}
   .order-row .items{font-size:13px;color:#444;margin-bottom:12px;padding-left:5px}
   .status-select{padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-weight:600;background:#f9f9f9;width:100%;outline:none;cursor:pointer}
-  
-  /* Badges */
   .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}
   .pending{background:#f39c12}.confirmed{background:#3498db}.shipped{background:#9b59b6}.delivered{background:#27ae60}.cancelled{background:#e74c3c}
-  
-  /* Bottom Nav */
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
   nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px;font-weight:600}
   nav.bottom a.active{color:#ff6b00}
   nav.bottom a span{display:block;font-size:20px;margin-bottom:2px}
-  
-  /* Empty state */
   .empty-text{text-align:center;color:#888;padding:30px 10px;font-size:14px}
 </style>
 </head>
@@ -80,7 +53,6 @@
 
 <header><h1>⚙️ Admin Panel</h1></header>
 
-<!-- Login Screen -->
 <div class="login-screen" id="loginScreen">
   <p>🔒 Admin password দিন</p>
   <input type="password" id="adminPass" placeholder="Password" autocomplete="off">
@@ -88,42 +60,33 @@
   <p id="loginMsg" style="color:#e74c3c;margin-top:15px;font-size:14px;font-weight:600;"></p>
 </div>
 
-<!-- Main Panel -->
 <div id="mainPanel" style="display:none">
   <div class="tabs">
     <button class="active" data-tab="products">📦 Products</button>
     <button data-tab="orders">🛒 Orders</button>
   </div>
   
-  <!-- Products Tab -->
   <div id="tab-products" class="panel">
     <div class="form-card">
       <h3>➕ Add Product</h3>
-      
-      <!-- Success/Error Message Box -->
       <div id="adminMsg" class="msg-box"></div>
-      
       <input id="pName" placeholder="Product name *">
       <input id="pPrice" type="number" placeholder="Price (৳) *">
       <input id="pImage" placeholder="Google Drive image link">
       <p class="hint">Drive link → share → anyone with link</p>
       <textarea id="pDesc" placeholder="Description (optional)"></textarea>
-      
       <button class="btn-primary" id="addProductBtn">Add Product</button>
     </div>
-    
     <h3 style="margin:16px 4px 10px;font-size:16px;color:#333">All Products</h3>
     <div id="productList"></div>
   </div>
   
-  <!-- Orders Tab -->
   <div id="tab-orders" class="panel" style="display:none">
     <h3 style="margin-bottom:10px;font-size:16px;color:#333">All Orders</h3>
     <div id="orderList"></div>
   </div>
 </div>
 
-<!-- Bottom Nav -->
 <nav class="bottom">
   <a href="index.html"><span>🏠</span>Home</a>
   <a href="cart.html"><span>🛒</span>Cart</a>
@@ -132,17 +95,15 @@
 
 <script type="module">
 import { db } from './config.js';
-import { ref, onValue, push, set, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ⚠️ Admin Password (এখানে পরিবর্তন করতে পারবেন)
 const ADMIN_PASSWORD = 'pikari2024'; 
+let initialized = false;
 
-// Check if already logged in this session
 if (sessionStorage.getItem('pb_admin') === 'yes') {
   showPanel();
 }
 
-// Login Logic
 document.getElementById('loginBtn').onclick = () => {
   const pass = document.getElementById('adminPass').value;
   if (pass === ADMIN_PASSWORD) {
@@ -153,20 +114,19 @@ document.getElementById('loginBtn').onclick = () => {
   }
 };
 
-// Enter key to login
 document.getElementById('adminPass').addEventListener('keypress', function (e) {
-  if (e.key === 'Enter') {
-    document.getElementById('loginBtn').click();
-  }
+  if (e.key === 'Enter') document.getElementById('loginBtn').click();
 });
 
 function showPanel() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('mainPanel').style.display = 'block';
-  initAdmin();
+  if (!initialized) {
+    initAdmin();
+    initialized = true;
+  }
 }
 
-// Helper: Google Drive link to Thumbnail
 function driveUrl(url) {
   if (!url) return 'https://via.placeholder.com/100?text=No+Image';
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -174,12 +134,7 @@ function driveUrl(url) {
   return url;
 }
 
-let initialized = false;
 function initAdmin() {
-  if (initialized) return;
-  initialized = true;
-  
-  // Tabs switching
   document.querySelectorAll('.tabs button').forEach(b => {
     b.onclick = () => {
       document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
@@ -189,7 +144,6 @@ function initAdmin() {
     };
   });
   
-  // --- Add Product Logic ---
   document.getElementById('addProductBtn').onclick = async () => {
     const name = document.getElementById('pName').value.trim();
     const price = +document.getElementById('pPrice').value;
@@ -199,7 +153,6 @@ function initAdmin() {
     const msgBox = document.getElementById('adminMsg');
     const btn = document.getElementById('addProductBtn');
 
-    // Reset message
     msgBox.className = 'msg-box';
     msgBox.textContent = '';
 
@@ -209,7 +162,6 @@ function initAdmin() {
       return;
     }
 
-    // Button loading state
     btn.textContent = 'Adding...';
     btn.disabled = true;
 
@@ -218,36 +170,30 @@ function initAdmin() {
         name, price, image, desc, createdAt: Date.now()
       });
       
-      // Clear inputs on success
       document.getElementById('pName').value = '';
       document.getElementById('pPrice').value = '';
       document.getElementById('pImage').value = '';
       document.getElementById('pDesc').value = '';
       
-      // Show success message
       msgBox.textContent = '✅ প্রোডাক্ট সফলভাবে যোগ করা হয়েছে!';
       msgBox.className = 'msg-box success';
       
-      // Hide message after 3 seconds
       setTimeout(() => { msgBox.className = 'msg-box'; }, 3000);
 
     } catch (error) {
-      // Show error message
       msgBox.textContent = '❌ সমস্যা হয়েছে: ' + error.message;
       msgBox.className = 'msg-box error';
     } finally {
-      // Reset button
       btn.textContent = 'Add Product';
       btn.disabled = false;
     }
   };
   
-  // --- Load Products ---
   onValue(ref(db, 'products'), (snap) => {
     const list = document.getElementById('productList');
     list.innerHTML = '';
     const data = snap.val() || {};
-    const entries = Object.entries(data).sort((a, b) => b[1].createdAt - a[1].createdAt);
+    const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
     
     if (entries.length === 0) {
       list.innerHTML = '<p class="empty-text">কোনো প্রোডাক্ট নেই</p>';
@@ -274,12 +220,11 @@ function initAdmin() {
     });
   });
   
-  // --- Load Orders ---
   onValue(ref(db, 'orders'), (snap) => {
     const list = document.getElementById('orderList');
     list.innerHTML = '';
     const data = snap.val() || {};
-    const entries = Object.entries(data).sort((a, b) => b[1].createdAt - a[1].createdAt);
+    const entries = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
     
     if (entries.length === 0) {
       list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>';
