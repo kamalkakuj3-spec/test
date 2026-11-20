@@ -47,8 +47,6 @@
   nav.bottom a.active{color:#ff6b00}
   nav.bottom a span{display:block;font-size:20px;margin-bottom:2px}
   .empty-text{text-align:center;color:#888;padding:30px 10px;font-size:14px}
-
-  /* Toggle Switch Style */
   .toggle-container { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
   .toggle-container span { font-size: 14px; font-weight: 600; color: #333; }
   .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
@@ -74,12 +72,12 @@
   <div class="tabs">
     <button class="active" data-tab="products">📦 Products</button>
     <button data-tab="categories">🗂️ Category</button>
-    <button data-tab="media">🎬 Media (Video/Slider)</button>
+    <button data-tab="media">🎬 Media</button>
     <button data-tab="notice">📢 Notice</button>
+    <button data-tab="contact">📞 Contact</button>
     <button data-tab="orders">🛒 Orders</button>
   </div>
   
-  <!-- Products Tab -->
   <div id="tab-products" class="panel">
     <div class="form-card">
       <h3>➕ Add Product</h3>
@@ -98,7 +96,6 @@
     <div id="productList"></div>
   </div>
   
-  <!-- Categories Tab -->
   <div id="tab-categories" class="panel" style="display:none">
     <div class="form-card">
       <h3>➕ Add Category</h3>
@@ -110,10 +107,7 @@
     <div id="categoryList"></div>
   </div>
 
-  <!-- Media (Video/Slider) Tab -->
   <div id="tab-media" class="panel" style="display:none">
-    
-    <!-- Toggle Switch -->
     <div class="form-card">
       <h3>🎬 Media Display Mode</h3>
       <div class="toggle-container">
@@ -125,8 +119,6 @@
       </div>
       <p class="hint" style="text-align:center">সুইচ চালু করলে ভিডিও দেখাবে, বন্ধ করলে স্লাইডার দেখাবে।</p>
     </div>
-
-    <!-- Video Input -->
     <div class="form-card" id="videoInputSection" style="display:none;">
       <h3>🎥 Video Link (Cloudinary)</h3>
       <div id="videoMsg" class="msg-box"></div>
@@ -134,8 +126,6 @@
       <p class="hint">যেমন: https://res.cloudinary.com/demo/video/upload/sample.mp4</p>
       <button class="btn-primary" id="saveVideoBtn">Save Video</button>
     </div>
-
-    <!-- Slider Input -->
     <div class="form-card" id="sliderInputSection">
       <h3>🖼️ Add Slider Image</h3>
       <div id="sliderMsg" class="msg-box"></div>
@@ -143,22 +133,31 @@
       <p class="hint">ড্রাইভ লিংক দিন (অবশ্যই 'Anyone with link' করা থাকতে হবে)</p>
       <button class="btn-primary" id="addSliderBtn">Add to Slider</button>
     </div>
-    
     <h3 style="margin:16px 4px 10px;font-size:16px;color:#333">All Slider Images</h3>
     <div id="sliderList"></div>
   </div>
 
-  <!-- Notice Tab -->
   <div id="tab-notice" class="panel" style="display:none">
     <div class="form-card">
       <h3>📢 Update Notice (চলন্ত লেখা)</h3>
       <div id="noticeMsg" class="msg-box"></div>
-      <textarea id="noticeText" placeholder="এখানে আপনার চলন্ত লেখাটি লিখুন... (যেমন: আজকের অফার! ৫০০ টাকার উপরে অর্ডারে ফ্রি ডেলিভারি)" style="min-height: 100px;"></textarea>
+      <textarea id="noticeText" placeholder="এখানে আপনার চলন্ত লেখাটি লিখুন..." style="min-height: 100px;"></textarea>
       <button class="btn-primary" id="saveNoticeBtn">Save Notice</button>
     </div>
   </div>
+
+  <div id="tab-contact" class="panel" style="display:none">
+    <div class="form-card">
+      <h3>📞 Contact Info</h3>
+      <div id="contactMsg" class="msg-box"></div>
+      <input id="contactPhone" placeholder="Phone Number">
+      <input id="contactEmail" placeholder="Email Address">
+      <input id="contactAddress" placeholder="Address">
+      <textarea id="contactAbout" placeholder="About / Details..." style="min-height: 80px;"></textarea>
+      <button class="btn-primary" id="saveContactBtn">Save Contact Info</button>
+    </div>
+  </div>
   
-  <!-- Orders Tab -->
   <div id="tab-orders" class="panel" style="display:none">
     <h3 style="margin-bottom:10px;font-size:16px;color:#333">All Orders</h3>
     <div id="orderList"></div>
@@ -213,13 +212,12 @@ function initAdmin() {
       document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       const tabName = b.dataset.tab;
-      ['products', 'categories', 'media', 'notice', 'orders'].forEach(tab => {
+      ['products', 'categories', 'media', 'notice', 'contact', 'orders'].forEach(tab => {
         document.getElementById('tab-' + tab).style.display = tab === tabName ? 'block' : 'none';
       });
     };
   });
   
-  // Load Categories for Product Dropdown
   onValue(ref(db, 'categories'), (snap) => {
     const data = snap.val() || {};
     const select = document.getElementById('pCategory');
@@ -229,7 +227,6 @@ function initAdmin() {
     });
   });
 
-  // Add Category
   document.getElementById('addCatBtn').onclick = async () => {
     const catName = document.getElementById('catName').value.trim();
     const msgBox = document.getElementById('categoryMsg');
@@ -243,7 +240,6 @@ function initAdmin() {
     } catch (error) { msgBox.textContent = '❌ সমস্যা: ' + error.message; msgBox.className = 'msg-box error'; }
   };
 
-  // Load Category List
   onValue(ref(db, 'categories'), (snap) => {
     const list = document.getElementById('categoryList'); list.innerHTML = '';
     const entries = Object.entries(snap.val() || {}).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
@@ -256,7 +252,6 @@ function initAdmin() {
     });
   });
 
-  // Products Logic
   document.getElementById('addProductBtn').onclick = async () => {
     const name = document.getElementById('pName').value.trim();
     const price = +document.getElementById('pPrice').value;
@@ -289,7 +284,6 @@ function initAdmin() {
     });
   });
 
-  // --- Media Logic (Video vs Slider) ---
   get(ref(db, 'mediaSettings')).then((snap) => {
     if (snap.exists() && snap.val().mode === 'video') {
       document.getElementById('mediaModeToggle').checked = true;
@@ -307,7 +301,6 @@ function initAdmin() {
     await set(ref(db, 'mediaSettings/mode'), isVideo ? 'video' : 'slider');
   };
 
-  // Save Video URL
   get(ref(db, 'mediaSettings/videoUrl')).then((snap) => {
     if (snap.exists()) document.getElementById('videoUrl').value = snap.val() || '';
   });
@@ -323,7 +316,6 @@ function initAdmin() {
     } catch (error) { msgBox.textContent = '❌ সমস্যা: ' + error.message; msgBox.className = 'msg-box error'; }
   };
 
-  // Slider Logic
   document.getElementById('addSliderBtn').onclick = async () => {
     const image = document.getElementById('sliderImage').value.trim();
     const msgBox = document.getElementById('sliderMsg');
@@ -352,7 +344,6 @@ function initAdmin() {
     });
   });
 
-  // Notice Logic
   get(ref(db, 'notice')).then((snap) => {
     if (snap.exists()) document.getElementById('noticeText').value = snap.val().text || '';
   });
@@ -371,7 +362,34 @@ function initAdmin() {
     finally { btn.textContent = 'Save Notice'; btn.disabled = false; }
   };
 
-  // Orders Logic
+  // Contact Logic
+  get(ref(db, 'contact')).then((snap) => {
+    if (snap.exists()) {
+      const d = snap.val();
+      document.getElementById('contactPhone').value = d.phone || '';
+      document.getElementById('contactEmail').value = d.email || '';
+      document.getElementById('contactAddress').value = d.address || '';
+      document.getElementById('contactAbout').value = d.about || '';
+    }
+  });
+
+  document.getElementById('saveContactBtn').onclick = async () => {
+    const phone = document.getElementById('contactPhone').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const address = document.getElementById('contactAddress').value.trim();
+    const about = document.getElementById('contactAbout').value.trim();
+    const msgBox = document.getElementById('contactMsg');
+    const btn = document.getElementById('saveContactBtn');
+    msgBox.className = 'msg-box'; msgBox.textContent = '';
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    try {
+      await set(ref(db, 'contact'), { phone, email, address, about, updatedAt: Date.now() });
+      msgBox.textContent = '✅ কন্টাক্ট তথ্য সেভ হয়েছে!'; msgBox.className = 'msg-box success';
+      setTimeout(() => { msgBox.className = 'msg-box'; }, 3000);
+    } catch (error) { msgBox.textContent = '❌ সমস্যা: ' + error.message; msgBox.className = 'msg-box error'; }
+    finally { btn.textContent = 'Save Contact Info'; btn.disabled = false; }
+  };
+
   onValue(ref(db, 'orders'), (snap) => {
     const list = document.getElementById('orderList'); list.innerHTML = '';
     const entries = Object.entries(snap.val() || {}).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
