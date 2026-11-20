@@ -28,6 +28,7 @@
   .about-box h3 { font-size: 15px; color: #ff6b00; margin-bottom: 8px; }
   .about-box p { font-size: 14px; color: #555; line-height: 1.6; }
   
+  /* Bottom Navigation */
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
   nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px}
   nav.bottom a.active{color:#ff6b00}
@@ -49,7 +50,8 @@
 
 <nav class="bottom">
   <a href="index.html"><span>🏠</span>Home</a>
-  <a href="cart.html"><span>🛒</span>Cart</a>
+  <a href="#" id="navSearchBtn"><span>🔍</span>Search</a>
+  <a href="login.html" id="navProfileBtn"><span>👤</span>Profile</a>
   <a href="contact.html" class="active"><span>📞</span>Contact</a>
   <a href="admin.html"><span>⚙️</span>Admin</a>
 </nav>
