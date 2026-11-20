@@ -12,9 +12,22 @@
   header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
   header h1{font-size:18px;font-weight:700}
   .header-right { display: flex; align-items: center; gap: 12px; }
-  .search-icon, .contact-icon { font-size: 20px; text-decoration: none; color: #fff; cursor: pointer; }
+  .header-right a, .header-right span { font-size: 20px; text-decoration: none; color: #fff; cursor: pointer; }
   .cart-icon{position:relative;font-size:22px;text-decoration:none;color:#fff}
   .cart-count{position:absolute;top:-6px;right:-8px;background:#fff;color:#ff6b00;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+
+  /* User Popup Menu */
+  .user-menu {
+    position: absolute; top: 60px; right: 16px; background: #fff; border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2); padding: 10px; min-width: 180px;
+    display: none; z-index: 200; animation: fadeInDown 0.3s ease;
+  }
+  .user-menu.show { display: block; }
+  @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  .user-menu .name { font-size: 14px; font-weight: 700; color: #333; padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+  .user-menu a { display: block; padding: 10px 8px; text-decoration: none; color: #444; font-size: 14px; border-radius: 6px; }
+  .user-menu a:active { background: #f5f5f5; }
+  .user-menu .logout { color: #e74c3c; font-weight: 600; }
 
   /* Search Bar */
   .search-bar { display: none; padding: 10px 12px; background: #fff; border-bottom: 1px solid #eee; }
@@ -52,10 +65,7 @@
   .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column}
   .card img{width:100%;height:150px;object-fit:cover;background:#eee;user-select:none;-webkit-user-drag:none;cursor:pointer}
   .card-body{padding:10px;display:flex;flex-direction:column;flex:1}
-  
-  /* গ্যাপ ফিক্স: min-height বাদ দেওয়া হয়েছে এবং মার্জিন কমিয়ে 2px করা হয়েছে */
   .card-body h3{font-size:13px;font-weight:600;line-height:1.3;margin:0 0 2px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  
   .price{color:#ff6b00;font-weight:700;font-size:15px;margin:0 0 8px 0;}
   .btn{width:100%;padding:8px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;margin-top:auto}
   .btn:active{background:#e55f00}
@@ -121,11 +131,19 @@
 <header>
   <h1>🛍️ Pikari Bazar</h1>
   <div class="header-right">
+    <a href="login.html" id="loginBtn" style="font-size:18px; text-decoration:none;">👤</a>
     <span class="search-icon" id="searchToggleBtn">🔍</span>
     <a href="contact.html" class="contact-icon">📞</a>
     <a href="cart.html" class="cart-icon">🛒<span class="cart-count" id="cartCount">0</span></a>
   </div>
 </header>
+
+<!-- User Menu Dropdown -->
+<div class="user-menu" id="userMenu">
+  <div class="name" id="userMenuName">User</div>
+  <a href="my-orders.html">📦 My Orders</a>
+  <a href="#" class="logout" id="logoutBtn">🚪 Logout</a>
+</div>
 
 <!-- Search Bar -->
 <div class="search-bar" id="searchBar">
@@ -195,10 +213,11 @@
 </nav>
 
 <script type="module">
-import { db, getUserId } from './config.js';
+import { db, auth, getUserId } from './config.js';
 import { ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const uid = getUserId();
+let uid = getUserId(); // ডিফল্ট গেস্ট আইডি
 const list = document.getElementById('productList');
 const loader = document.getElementById('loaderOverlay');
 const video = document.getElementById('cloudinaryVideo');
@@ -210,6 +229,49 @@ let currentCategory = 'all';
 let allCategories = [];
 let selectedCategories = new Set();
 let searchQuery = '';
+
+// === AUTH STATE CHECK (লগইন অবস্থা দেখা) ===
+onAuthStateChanged(auth, (user) => {
+  const loginBtn = document.getElementById('loginBtn');
+  const userMenu = document.getElementById('userMenu');
+  
+  if (user) {
+    // ইউজার লগইন করা আছে
+    uid = user.uid; // গেস্ট আইডি বদলে লগইন করা UID ব্যবহার হবে
+    loginBtn.textContent = '👤'; 
+    loginBtn.href = '#';
+    
+    // ক্লিক করলে মেনু দেখাবে
+    loginBtn.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('userMenuName').textContent = user.displayName || user.email;
+      userMenu.classList.toggle('show');
+    };
+    
+    // Logout বাটন
+    document.getElementById('logoutBtn').onclick = async (e) => {
+      e.preventDefault();
+      await signOut(auth);
+      localStorage.removeItem('pb_uid'); // গেস্ট আইডি রিসেট
+      window.location.reload();
+    };
+  } else {
+    // লগইন করা নেই (গেস্ট)
+    uid = getUserId();
+    loginBtn.href = 'login.html';
+    loginBtn.onclick = null;
+    userMenu.classList.remove('show');
+  }
+});
+
+// বাইরে ক্লিক করলে মেনু বন্ধ হবে
+document.addEventListener('click', (e) => {
+  const userMenu = document.getElementById('userMenu');
+  const loginBtn = document.getElementById('loginBtn');
+  if (!userMenu.contains(e.target) && !loginBtn.contains(e.target)) {
+    userMenu.classList.remove('show');
+  }
+});
 
 function driveUrl(url, size = 400) {
   if (!url) return 'https://via.placeholder.com/300x300?text=No+Image';
@@ -417,8 +479,6 @@ function renderProducts() {
   filtered.forEach(([id, p]) => {
     const card = document.createElement('div');
     card.className = 'card';
-    
-    // কার্ডের ভেতরের HTML - ছবিতে ক্লিক করলে মডাল খুলবে
     card.innerHTML = `
       <img src="${driveUrl(p.image, 400)}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Error'">
       <div class="card-body">
@@ -426,28 +486,21 @@ function renderProducts() {
         <p class="price">৳${p.price}</p>
         <button class="btn" data-id="${id}">Add to Cart</button>
       </div>`;
-    
-    // ছবির উপর ক্লিক ইভেন্ট
     card.querySelector('img').onclick = () => openProductModal(p);
-    
-    // Add to Cart বাটনে ক্লিক ইভেন্ট (ইভেন্ট বাবলিং বন্ধ করা হয়েছে)
     card.querySelector('.btn').onclick = (e) => {
       e.stopPropagation();
       addToCart(id, p);
     };
-    
     list.appendChild(card);
   });
 }
 
 // --- Product Modal Logic ---
 function openProductModal(p) {
-  // যদি ডেসক্রিপশন না থাকে, তবে কিছুই দেখাবে না (অথবা চাইলে মেসেজ দেখাতে পারেন)
   if (!p.desc || p.desc.trim() === '') {
     showCenterToast('ℹ️ এই প্রোডাক্টের কোনো বিবরণ নেই');
     return;
   }
-  
   document.getElementById('modalImg').src = driveUrl(p.image, 600);
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalPrice').textContent = '৳' + p.price;
@@ -475,10 +528,21 @@ function showCenterToast(msg) {
   setTimeout(() => centerToast.classList.remove('show'), 2000);
 }
 
-onValue(ref(db, `carts/${uid}`), (snap) => {
-  const c = snap.val() || {};
-  const count = Object.values(c).reduce((s, i) => s + i.qty, 0);
-  document.getElementById('cartCount').textContent = count;
+// Cart count (UID পরিবর্তন হলে আবার লোড হবে)
+let cartUnsubscribe = null;
+function loadCartCount(currentUid) {
+  if (cartUnsubscribe) cartUnsubscribe();
+  cartUnsubscribe = onValue(ref(db, `carts/${currentUid}`), (snap) => {
+    const c = snap.val() || {};
+    const count = Object.values(c).reduce((s, i) => s + i.qty, 0);
+    document.getElementById('cartCount').textContent = count;
+  });
+}
+
+// Auth state পরিবর্তনের সাথে কার্ট লোড
+onAuthStateChanged(auth, (user) => {
+  const currentUid = user ? user.uid : getUserId();
+  loadCartCount(currentUid);
 });
 </script>
 </body>
