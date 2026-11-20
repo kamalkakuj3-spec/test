@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact - Pikari Bazar</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:70px}
+  
+  header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  header a{color:#fff;text-decoration:none;font-size:22px}
+  header h1{font-size:18px;font-weight:700}
+  
+  .contact-card { background: #fff; margin: 20px 16px; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+  .contact-icon-large { font-size: 50px; margin-bottom: 15px; }
+  .contact-card h2 { font-size: 20px; color: #333; margin-bottom: 20px; }
+  
+  .contact-item { display: flex; align-items: flex-start; gap: 15px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; text-align: left; }
+  .contact-item:last-child { border-bottom: none; }
+  .contact-item .icon { font-size: 22px; width: 30px; flex-shrink: 0; }
+  .contact-item .info { flex: 1; }
+  .contact-item .info .label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+  .contact-item .info .value { font-size: 15px; color: #333; font-weight: 500; word-break: break-word; }
+  .contact-item .info .value a { color: #ff6b00; text-decoration: none; font-weight: 600; }
+  
+  .about-box { background: #fff8f3; border-left: 4px solid #ff6b00; padding: 16px; border-radius: 8px; margin: 20px 16px; }
+  .about-box h3 { font-size: 15px; color: #ff6b00; margin-bottom: 8px; }
+  .about-box p { font-size: 14px; color: #555; line-height: 1.6; }
+  
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
+  nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px}
+  nav.bottom a.active{color:#ff6b00}
+  nav.bottom a span{display:block;font-size:20px;margin-bottom:2px}
+
+  .loading-text { text-align: center; color: #888; padding: 40px 20px; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">←</a>
+  <h1>📞 Contact Us</h1>
+</header>
+
+<div id="contactContent">
+  <p class="loading-text">Loading...</p>
+</div>
+
+<nav class="bottom">
+  <a href="index.html"><span>🏠</span>Home</a>
+  <a href="cart.html"><span>🛒</span>Cart</a>
+  <a href="contact.html" class="active"><span>📞</span>Contact</a>
+  <a href="admin.html"><span>⚙️</span>Admin</a>
+</nav>
+
+<script type="module">
+import { db } from './config.js';
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+onValue(ref(db, 'contact'), (snap) => {
+  const data = snap.val();
+  const container = document.getElementById('contactContent');
+  
+  if (!data) {
+    container.innerHTML = '<p class="loading-text">কোনো কন্টাক্ট তথ্য এখনো যোগ করা হয়নি।</p>';
+    return;
+  }
+  
+  let html = `<div class="contact-card">
+    <div class="contact-icon-large">🏪</div>
+    <h2>Pikari Bazar</h2>`;
+  
+  if (data.phone) {
+    html += `<div class="contact-item">
+      <div class="icon">📞</div>
+      <div class="info"><div class="label">Phone</div><div class="value"><a href="tel:${data.phone}">${data.phone}</a></div></div>
+    </div>`;
+  }
+  if (data.email) {
+    html += `<div class="contact-item">
+      <div class="icon">✉️</div>
+      <div class="info"><div class="label">Email</div><div class="value"><a href="mailto:${data.email}">${data.email}</a></div></div>
+    </div>`;
+  }
+  if (data.address) {
+    html += `<div class="contact-item">
+      <div class="icon">📍</div>
+      <div class="info"><div class="label">Address</div><div class="value">${data.address}</div></div>
+    </div>`;
+  }
+  
+  html += `</div>`;
+  
+  if (data.about) {
+    html += `<div class="about-box">
+      <h3>ℹ️ About Us</h3>
+      <p>${data.about}</p>
+    </div>`;
+  }
+  
+  container.innerHTML = html;
+});
+</script>
+</body>
+</html>
