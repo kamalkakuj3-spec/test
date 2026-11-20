@@ -44,20 +44,10 @@
   
   .checkout-btn{
     width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
-    font-size:15px;font-weight:700;cursor:pointer; transition: transform 0.2s ease, background 0.2s;
+    font-size:15px;font-weight:700;cursor:pointer;
   }
   .checkout-btn:active{background:#e55f00}
   .checkout-btn:disabled{background:#ccc;cursor:not-allowed}
-  
-  /* === BOUNCE ANIMATION for Confirm Button === */
-  @keyframes bounceUpDown {
-    0%   { transform: translateY(0); }
-    25%  { transform: translateY(-15px); }
-    50%  { transform: translateY(0); }
-    75%  { transform: translateY(-8px); }
-    100% { transform: translateY(0); }
-  }
-  .btn-bouncing { animation: bounceUpDown 0.6s ease-in-out; }
 
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;
              display:flex;justify-content:space-around;padding:8px 0;z-index:100}
@@ -85,7 +75,7 @@
     font-family:inherit;background:#f9f9f9}
   .form-group textarea{resize:vertical;min-height:70px}
   .modal-btn{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
-             font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+             font-size:15px;font-weight:700;cursor:pointer;margin-top:8px; position:relative; overflow:hidden;}
   .modal-btn.cancel{background:#eee;color:#666;margin-top:8px}
 
   /* === PREMIUM POPUP DESIGN === */
@@ -126,6 +116,28 @@
     opacity: 0; transition: all 0.4s ease 0.45s;
   }
   .popup-overlay.show .popup-subtext { opacity: 1; }
+
+  /* === STAR BURST (CONFETTI) ANIMATION === */
+  .star-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background-color: gold;
+    border-radius: 50%;
+    z-index: 99998;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+  }
+  @keyframes burstUp {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(var(--tx), var(--ty)) scale(0);
+      opacity: 0;
+    }
+  }
 </style>
 </head>
 <body>
@@ -238,6 +250,46 @@ function showPopup(type, message, subtext = '') {
   }, 2500);
 }
 
+// === STAR BURST / CONFETTI ANIMATION ===
+function fireStarBurst(x, y) {
+  const colors = ['#FFD700', '#FF6b00', '#00b09b', '#e74c3c', '#3498db', '#9b59b6'];
+  
+  for (let i = 0; i < 40; i++) {
+    const star = document.createElement('div');
+    star.className = 'star-particle';
+    
+    // Random color
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    star.style.backgroundColor = color;
+    star.style.boxShadow = `0 0 6px ${color}`;
+    
+    // Random size
+    const size = 6 + Math.random() * 8;
+    star.style.width = size + 'px';
+    star.style.height = size + 'px';
+    
+    // Start position at button center
+    star.style.left = x + 'px';
+    star.style.top = y + 'px';
+    
+    // Random direction (mainly upwards)
+    const tx = (Math.random() - 0.5) * 200; // Spread horizontally
+    const ty = -100 - Math.random() * 200;  // Go up first
+    
+    star.style.setProperty('--tx', tx + 'px');
+    star.style.setProperty('--ty', ty + 'px');
+    
+    // Random duration
+    const duration = 1 + Math.random() * 0.5;
+    star.style.animation = `burstUp ${duration}s ease-out forwards`;
+    
+    document.body.appendChild(star);
+    
+    // Remove after animation
+    setTimeout(() => star.remove(), duration * 1000);
+  }
+}
+
 function driveUrl(url) {
   if (!url) return 'https://via.placeholder.com/100?text=No';
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -321,7 +373,7 @@ document.getElementById('cancelModal').onclick = () => {
   document.getElementById('checkoutModal').classList.remove('show');
 };
 
-// Confirm Order with Bounce Animation and Premium Popup
+// Confirm Order with Star Burst Animation
 document.getElementById('confirmOrder').onclick = async () => {
   const name = document.getElementById('cName').value.trim();
   const phone = document.getElementById('cPhone').value.trim();
@@ -334,46 +386,47 @@ document.getElementById('confirmOrder').onclick = async () => {
     return;
   }
   
-  // Bounce animation
-  btn.classList.add('btn-bouncing');
+  // Get button position for burst origin
+  const rect = btn.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
   
-  setTimeout(async () => {
-    btn.classList.remove('btn-bouncing');
-    btn.textContent = 'Processing...';
-    btn.disabled = true;
+  // Fire star burst animation
+  fireStarBurst(x, y);
+  
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+  
+  const subtotal = Object.values(cartData).reduce((s, i) => s + i.price * i.qty, 0);
+  const orderRef = push(ref(db, 'orders'));
+  try {
+    await set(orderRef, {
+      userId: uid,
+      customer: { name, phone, address },
+      items: cartData,
+      subtotal,
+      delivery: deliveryCharge,
+      total: subtotal + deliveryCharge,
+      payment,
+      status: 'pending',
+      createdAt: Date.now()
+    });
     
-    const subtotal = Object.values(cartData).reduce((s, i) => s + i.price * i.qty, 0);
-    const orderRef = push(ref(db, 'orders'));
-    try {
-      await set(orderRef, {
-        userId: uid,
-        customer: { name, phone, address },
-        items: cartData,
-        subtotal,
-        delivery: deliveryCharge,
-        total: subtotal + deliveryCharge,
-        payment,
-        status: 'pending',
-        createdAt: Date.now()
-      });
-      
-      await remove(ref(db, `carts/${uid}`));
-      document.getElementById('checkoutModal').classList.remove('show');
-      
-      // Show success popup
-      showPopup('success', 'অর্ডার কনফার্ম হয়েছে!', 'আমরা শীঘ্রই যোগাযোগ করবো');
-      
-      // Redirect after popup finishes
-      setTimeout(() => {
-        location.href = 'index.html';
-      }, 2500);
-      
-    } catch (e) {
-      showPopup('error', 'অর্ডার ব্যর্থ হয়েছে', e.message);
-      btn.textContent = 'Confirm Order';
-      btn.disabled = false;
-    }
-  }, 600);
+    await remove(ref(db, `carts/${uid}`));
+    document.getElementById('checkoutModal').classList.remove('show');
+    
+    // Show success popup
+    showPopup('success', 'অর্ডার কনফার্ম হয়েছে!', 'আমরা শীঘ্রই যোগাযোগ করবো');
+    
+    setTimeout(() => {
+      location.href = 'index.html';
+    }, 2500);
+    
+  } catch (e) {
+    showPopup('error', 'অর্ডার ব্যর্থ হয়েছে', e.message);
+    btn.textContent = 'Confirm Order';
+    btn.disabled = false;
+  }
 };
 </script>
 </body>
