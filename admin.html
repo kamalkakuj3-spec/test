@@ -35,7 +35,7 @@
   .edit-btn{background:#e3f2fd;color:#1976d2;border:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
   .del-btn{background:#ffe6e6;color:#e74c3c;border:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
   
-  /* === Orders Summary Dashboard (Excel-like) === */
+  /* === Orders Summary Dashboard === */
   .summary-dashboard {
     background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
@@ -56,7 +56,8 @@
   .order-items-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 8px; }
   .order-item-row { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
   .order-item-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .order-item-row img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #ddd; }
+  .order-item-row img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #ddd; cursor: pointer; transition: transform 0.2s; }
+  .order-item-row img:active { transform: scale(0.9); }
   .order-item-row .details { flex: 1; font-size: 12px; color: #444; }
   .order-item-row .details b { color: #333; display: block; margin-bottom: 2px; }
   .order-item-row .details span { color: #ff6b00; font-weight: 600; }
@@ -65,12 +66,10 @@
   .order-row h4{font-size:15px;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center; padding-right: 30px;}
   .order-row .meta{font-size:13px;color:#666;line-height:1.6;margin-bottom:10px;}
   .order-row .meta b{color:#222}
-  .order-row .items{font-size:13px;color:#444;margin-bottom:12px;}
   .status-select{padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-weight:600;background:#f9f9f9;width:100%;outline:none;cursor:pointer}
   .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}
   .pending-badge{background:#f39c12}.confirmed-badge{background:#3498db}.shipped-badge{background:#9b59b6}.delivered-badge{background:#27ae60}.cancelled-badge{background:#e74c3c}
   
-  /* Order Delete Button */
   .order-delete-btn {
     position: absolute; top: 12px; right: 12px; background: #ffe6e6; color: #e74c3c; 
     border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; 
@@ -104,8 +103,49 @@
   .btn-save { background: #ff6b00; color: #fff; }
   .btn-cancel { background: #eee; color: #666; }
 
+  /* === PRODUCT DETAILS MODAL (NEW) === */
+  .product-detail-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99999;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(5px);
+  }
+  .product-detail-modal.show { display: flex; }
+  .product-detail-box {
+    background: #fff; border-radius: 20px; width: 100%; max-width: 340px;
+    overflow: hidden; animation: zoomIn 0.3s ease;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .product-detail-box .img-container {
+    width: 100%; height: 250px; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .product-detail-box .img-container img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+  .product-detail-box .info {
+    padding: 16px; text-align: center;
+  }
+  .product-detail-box .info h3 { font-size: 17px; color: #333; margin-bottom: 12px; }
+  .product-detail-box .info .row {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0; font-size: 14px;
+  }
+  .product-detail-box .info .row:last-child { border-bottom: none; }
+  .product-detail-box .info .row span:first-child { color: #888; font-weight: 500; }
+  .product-detail-box .info .row span:last-child { color: #333; font-weight: 700; }
+  .product-detail-box .info .row.total { 
+    background: #fff3e0; margin: 8px -16px -16px -16px; padding: 12px 16px; 
+    border-radius: 0 0 20px 20px;
+  }
+  .product-detail-box .info .row.total span:first-child { color: #ff6b00; font-weight: 700; }
+  .product-detail-box .info .row.total span:last-child { color: #ff6b00; font-size: 17px; }
+  .close-detail-btn {
+    width: 100%; padding: 14px; background: #ff6b00; color: #fff; border: none;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+
   /* Premium Popup */
-  .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 99999; display: none; align-items: center; justify-content: center; }
+  .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 999999; display: none; align-items: center; justify-content: center; }
   .popup-overlay.show { display: flex; }
   .popup-box { background: #fff; border-radius: 24px; padding: 30px 25px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: scale(0.7); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .popup-overlay.show .popup-box { transform: scale(1); opacity: 1; }
@@ -127,6 +167,31 @@
     <div class="popup-icon" id="popupIcon">✓</div>
     <div class="popup-message" id="popupMsg">Success!</div>
     <div class="popup-subtext" id="popupSubtext"></div>
+  </div>
+</div>
+
+<!-- Product Detail Modal -->
+<div class="product-detail-modal" id="productDetailModal">
+  <div class="product-detail-box">
+    <div class="img-container">
+      <img id="pdImage" src="" alt="">
+    </div>
+    <div class="info">
+      <h3 id="pdName">Product Name</h3>
+      <div class="row">
+        <span>দাম (Price)</span>
+        <span id="pdPrice">৳0</span>
+      </div>
+      <div class="row">
+        <span>পরিমাণ (Quantity)</span>
+        <span id="pdQty">0 পিস</span>
+      </div>
+      <div class="row total">
+        <span>সর্বমোট (Total)</span>
+        <span id="pdTotal">৳0</span>
+      </div>
+    </div>
+    <button class="close-detail-btn" id="closeDetailBtn">Close</button>
   </div>
 </div>
 
@@ -335,9 +400,8 @@ import { ref, onValue, push, remove, update, set, get } from "https://www.gstati
 const ADMIN_PASSWORD = 'pikari2024'; 
 let initialized = false;
 let allCategories = [];
-let allOrders = {}; // Store orders for summary
+let allOrders = {};
 
-// === PREMIUM POPUP FUNCTION ===
 function showPopup(type, message, subtext = '') {
   const overlay = document.getElementById('popupOverlay');
   const icon = document.getElementById('popupIcon');
@@ -389,12 +453,31 @@ function showPanel() {
   if (!initialized) { initAdmin(); initialized = true; }
 }
 
-function driveUrl(url) {
+function driveUrl(url, size = 200) {
   if (!url) return 'https://via.placeholder.com/100?text=No+Image';
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w200`;
+  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w${size}`;
   return url;
 }
+
+// === Open Product Detail Modal ===
+function openProductDetail(item) {
+  document.getElementById('pdImage').src = driveUrl(item.image, 600);
+  document.getElementById('pdName').textContent = item.name;
+  document.getElementById('pdPrice').textContent = '৳' + item.price;
+  document.getElementById('pdQty').textContent = item.qty + ' পিস';
+  document.getElementById('pdTotal').textContent = '৳' + (item.price * item.qty);
+  document.getElementById('productDetailModal').classList.add('show');
+}
+
+document.getElementById('closeDetailBtn').onclick = () => {
+  document.getElementById('productDetailModal').classList.remove('show');
+};
+document.getElementById('productDetailModal').onclick = (e) => {
+  if (e.target.id === 'productDetailModal') {
+    document.getElementById('productDetailModal').classList.remove('show');
+  }
+};
 
 function initAdmin() {
   document.querySelectorAll('.tabs button').forEach(b => {
@@ -659,12 +742,11 @@ function initAdmin() {
     }
   };
 
-  // === Orders Logic with Summary Dashboard ===
+  // Orders Logic
   onValue(ref(db, 'orders'), (snap) => {
     allOrders = snap.val() || {};
     const entries = Object.entries(allOrders).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
     
-    // Calculate Summary
     let sumPending = 0, sumConfirmed = 0, sumShipped = 0, sumDelivered = 0, sumCancelled = 0, sumTotal = 0;
     entries.forEach(([id, o]) => {
       const total = o.total || 0;
@@ -676,7 +758,6 @@ function initAdmin() {
       else if (o.status === 'cancelled') sumCancelled += total;
     });
     
-    // Update Dashboard Boxes
     document.getElementById('sum-pending').textContent = '৳' + sumPending;
     document.getElementById('sum-confirmed').textContent = '৳' + sumConfirmed;
     document.getElementById('sum-shipped').textContent = '৳' + sumShipped;
@@ -684,7 +765,6 @@ function initAdmin() {
     document.getElementById('sum-cancelled').textContent = '৳' + sumCancelled;
     document.getElementById('sum-total').textContent = '৳' + sumTotal;
     
-    // Update Modal
     document.getElementById('modal-sum-pending').textContent = '৳' + sumPending;
     document.getElementById('modal-sum-confirmed').textContent = '৳' + sumConfirmed;
     document.getElementById('modal-sum-shipped').textContent = '৳' + sumShipped;
@@ -692,19 +772,18 @@ function initAdmin() {
     document.getElementById('modal-sum-cancelled').textContent = '৳' + sumCancelled;
     document.getElementById('modal-sum-total').textContent = '৳' + sumTotal;
     
-    // Render Orders List
     const list = document.getElementById('orderList'); list.innerHTML = '';
     if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>'; return; }
     
     entries.forEach(([id, o]) => {
       const date = new Date(o.createdAt).toLocaleString('bn-BD');
       
-      // Build Items list with images
+      // Build Items list with clickable images
       let itemsHtml = '';
       Object.values(o.items || {}).forEach(item => {
         itemsHtml += `
           <div class="order-item-row">
-            <img src="${driveUrl(item.image)}" alt="">
+            <img src="${driveUrl(item.image)}" alt="" onclick='openProductDetail(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
             <div class="details">
               <b>${item.name}</b>
               <span>৳${item.price} × ${item.qty} = ৳${item.price * item.qty}</span>
@@ -734,7 +813,6 @@ function initAdmin() {
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Cancelled</option>
         </select>`;
       
-      // Status Change
       row.querySelector('.status-select').onchange = async (e) => {
         try {
           await update(ref(db, 'orders/' + id), { status: e.target.value });
@@ -742,7 +820,6 @@ function initAdmin() {
         } catch (err) { showPopup('error', 'আপডেট করা যায়নি', err.message); }
       };
 
-      // Delete Order
       row.querySelector('.order-delete-btn').onclick = async () => {
         if (confirm('আপনি কি নিশ্চিত এই অর্ডারটি ডিলিট করতে চান?')) {
           try {
@@ -758,6 +835,9 @@ function initAdmin() {
     });
   });
 }
+
+// Make openProductDetail global so inline onclick works
+window.openProductDetail = openProductDetail;
 
 // Summary Modal Logic
 document.getElementById('viewAllSummaryBtn').onclick = () => {
