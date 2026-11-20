@@ -6,7 +6,7 @@
 <title>Cart - Pikari Bazar</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:200px} /* বডির নিচে বড় প্যাডিং যাতে বাটন প্রোডাক্ট ঢেকে না দেয় */
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:200px}
   
   header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;
          padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -22,11 +22,36 @@
                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .item-info .price{color:#ff6b00;font-weight:700;font-size:14px}
   
+  /* Quantity Controls with Editable Input */
   .qty-controls{display:flex;align-items:center;gap:8px;margin-top:6px}
   .qty-btn{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:6px;
            font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .qty-btn:active{background:#f0f0f0}
-  .qty-num{font-weight:600;min-width:20px;text-align:center;font-size:14px}
+  
+  /* ইনপুট বক্সের স্টাইল */
+  .qty-input{
+    width: 45px;
+    height: 28px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    outline: none;
+    background: #f9f9f9;
+    -moz-appearance: textfield; /* ফায়ারফক্সে অ্যারো বাটন লুকানোর জন্য */
+  }
+  /* ক্রোমে অ্যারো বাটন লুকানোর জন্য */
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .qty-input:focus {
+    border-color: #ff6b00;
+    background: #fff;
+  }
   
   .remove-btn{background:none;border:none;color:#e74c3c;font-size:20px;cursor:pointer;padding:4px}
   
@@ -38,8 +63,13 @@
   /* Delivery Charge Input */
   .delivery-input-wrapper { display: flex; align-items: center; gap: 6px; }
   .delivery-input-wrapper input {
-    width: 70px; padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px;
+    width: 70px; padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px;
     font-size: 13px; text-align: right; outline: none; font-weight: 600; color: #ff6b00;
+    background: #f9f9f9;
+  }
+  .delivery-input-wrapper input:focus {
+    border-color: #ff6b00;
+    background: #fff;
   }
   
   .checkout-btn{
@@ -129,7 +159,6 @@
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
   }
   
-  /* Full 360 Degree Burst */
   @keyframes burstFullScreen {
     0% {
       transform: translate(0, 0) scale(1);
@@ -169,7 +198,8 @@
     <span>Delivery Charge</span>
     <div class="delivery-input-wrapper">
       <span>৳</span>
-      <input type="number" id="deliveryInput" value="60" min="0">
+      <!-- ডেলিভারি চার্জ বক্স খালি, ইউজার নিজে লিখবে -->
+      <input type="number" id="deliveryInput" placeholder="0" min="0">
     </div>
   </div>
   <div class="summary-row total">
@@ -220,7 +250,7 @@ import { ref, onValue, remove, push, set, update } from "https://www.gstatic.com
 
 const uid = getUserId();
 let cartData = {};
-let deliveryCharge = 60;
+let deliveryCharge = 0; // ডিফল্ট 0
 
 // === PREMIUM POPUP FUNCTION ===
 function showPopup(type, message, subtext = '') {
@@ -255,39 +285,33 @@ function showPopup(type, message, subtext = '') {
 // === FULL SCREEN STAR BURST ANIMATION ===
 function fireStarBurst(x, y) {
   const colors = ['#FFD700', '#FF6b00', '#00b09b', '#e74c3c', '#3498db', '#9b59b6', '#FF1493', '#00CED1'];
-  const totalStars = 80; // অনেক বেশি তারা
+  const totalStars = 80;
   
   for (let i = 0; i < totalStars; i++) {
     const star = document.createElement('div');
     star.className = 'star-particle';
     
-    // Random color
     const color = colors[Math.floor(Math.random() * colors.length)];
     star.style.backgroundColor = color;
     star.style.boxShadow = `0 0 8px ${color}`;
     
-    // Random size
     const size = 6 + Math.random() * 10;
     star.style.width = size + 'px';
     star.style.height = size + 'px';
-    if (Math.random() > 0.5) star.style.borderRadius = '50%'; // Some circles, some squares
+    if (Math.random() > 0.5) star.style.borderRadius = '50%';
     
-    // Start position at button center
     star.style.left = x + 'px';
     star.style.top = y + 'px';
     
-    // 360 Degree Full Screen Spread (বৃত্তাকারভাবে সব দিকে ছড়াবে)
-    const angle = Math.random() * Math.PI * 2; // 0 to 360 degrees
-    const distance = 150 + Math.random() * 400; // 150px to 550px দূরত্ব
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 150 + Math.random() * 400;
     
-    // ব্যাখ্যা: X এবং Y উভয় দিকেই র‍্যান্ডম দূরত্ব তৈরি
     const tx = Math.cos(angle) * distance;
-    const ty = Math.sin(angle) * distance - 150; // একটু উপরে বাড়তি ঠেলা দিলাম যাতে উপরের দিকেও যায়
+    const ty = Math.sin(angle) * distance - 150;
     
     star.style.setProperty('--tx', tx + 'px');
     star.style.setProperty('--ty', ty + 'px');
     
-    // Random duration
     const duration = 1.2 + Math.random() * 1.0;
     star.style.animation = `burstFullScreen ${duration}s ease-out forwards`;
     
@@ -309,6 +333,7 @@ onValue(ref(db, `carts/${uid}`), (snap) => {
   render();
 });
 
+// ডেলিভারি চার্জ ইনপুট লিসেনার
 document.getElementById('deliveryInput').addEventListener('input', (e) => {
   deliveryCharge = +e.target.value || 0;
   updateTotals();
@@ -337,6 +362,8 @@ function render() {
     subtotal += i.price * i.qty;
     const div = document.createElement('div');
     div.className = 'item';
+    
+    // কোয়ান্টিটি ইনপুট বক্সসহ HTML
     div.innerHTML = `
       <img src="${driveUrl(i.image)}" alt="">
       <div class="item-info">
@@ -344,18 +371,34 @@ function render() {
         <p class="price">৳${i.price}</p>
         <div class="qty-controls">
           <button class="qty-btn" data-action="dec">−</button>
-          <span class="qty-num">${i.qty}</span>
+          <input type="number" class="qty-input" value="${i.qty}" min="1">
           <button class="qty-btn" data-action="inc">+</button>
         </div>
       </div>
       <button class="remove-btn">🗑</button>`;
     
+    // প্লাস বাটন
     div.querySelector('[data-action="inc"]').onclick = () => 
       update(ref(db, `carts/${uid}/${id}`), { qty: i.qty + 1 });
+    
+    // মাইনাস বাটন
     div.querySelector('[data-action="dec"]').onclick = () => {
       if (i.qty <= 1) remove(ref(db, `carts/${uid}/${id}`));
       else update(ref(db, `carts/${uid}/${id}`), { qty: i.qty - 1 });
     };
+    
+    // কোয়ান্টিটি ইনপুটে টাইপ করলে
+    const qtyInput = div.querySelector('.qty-input');
+    qtyInput.addEventListener('change', (e) => {
+      let newQty = parseInt(e.target.value);
+      if (isNaN(newQty) || newQty < 1) {
+        newQty = 1;
+        e.target.value = 1;
+      }
+      update(ref(db, `carts/${uid}/${id}`), { qty: newQty });
+    });
+    
+    // ডিলিট বাটন
     div.querySelector('.remove-btn').onclick = () => 
       remove(ref(db, `carts/${uid}/${id}`));
     
@@ -380,7 +423,7 @@ document.getElementById('cancelModal').onclick = () => {
   document.getElementById('checkoutModal').classList.remove('show');
 };
 
-// Confirm Order with Full Screen Star Burst
+// Confirm Order
 document.getElementById('confirmOrder').onclick = async () => {
   const name = document.getElementById('cName').value.trim();
   const phone = document.getElementById('cPhone').value.trim();
@@ -393,12 +436,10 @@ document.getElementById('confirmOrder').onclick = async () => {
     return;
   }
   
-  // Get button position for burst origin
   const rect = btn.getBoundingClientRect();
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
   
-  // Fire star burst animation (full screen)
   fireStarBurst(x, y);
   
   btn.textContent = 'Processing...';
@@ -422,7 +463,6 @@ document.getElementById('confirmOrder').onclick = async () => {
     await remove(ref(db, `carts/${uid}`));
     document.getElementById('checkoutModal').classList.remove('show');
     
-    // Show success popup
     showPopup('success', 'অর্ডার কনফার্ম হয়েছে!', 'আমরা শীঘ্রই যোগাযোগ করবো');
     
     setTimeout(() => {
