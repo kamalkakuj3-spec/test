@@ -22,36 +22,19 @@
                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .item-info .price{color:#ff6b00;font-weight:700;font-size:14px}
   
-  /* Quantity Controls with Editable Input */
   .qty-controls{display:flex;align-items:center;gap:8px;margin-top:6px}
   .qty-btn{width:28px;height:28px;border:1px solid #ddd;background:#fff;border-radius:6px;
            font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .qty-btn:active{background:#f0f0f0}
   
-  /* ইনপুট বক্সের স্টাইল */
   .qty-input{
-    width: 45px;
-    height: 28px;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #333;
-    outline: none;
-    background: #f9f9f9;
-    -moz-appearance: textfield; /* ফায়ারফক্সে অ্যারো বাটন লুকানোর জন্য */
+    width: 45px; height: 28px; text-align: center; border: 1px solid #ddd;
+    border-radius: 6px; font-size: 14px; font-weight: 700; color: #333;
+    outline: none; background: #f9f9f9; -moz-appearance: textfield;
   }
-  /* ক্রোমে অ্যারো বাটন লুকানোর জন্য */
   .qty-input::-webkit-outer-spin-button,
-  .qty-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .qty-input:focus {
-    border-color: #ff6b00;
-    background: #fff;
-  }
+  .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty-input:focus { border-color: #ff6b00; background: #fff; }
   
   .remove-btn{background:none;border:none;color:#e74c3c;font-size:20px;cursor:pointer;padding:4px}
   
@@ -60,17 +43,13 @@
   .summary-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}
   .summary-row.total{font-size:17px;font-weight:700;color:#ff6b00;margin-bottom:10px}
   
-  /* Delivery Charge Input */
   .delivery-input-wrapper { display: flex; align-items: center; gap: 6px; }
   .delivery-input-wrapper input {
     width: 70px; padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px;
     font-size: 13px; text-align: right; outline: none; font-weight: 600; color: #ff6b00;
     background: #f9f9f9;
   }
-  .delivery-input-wrapper input:focus {
-    border-color: #ff6b00;
-    background: #fff;
-  }
+  .delivery-input-wrapper input:focus { border-color: #ff6b00; background: #fff; }
   
   .checkout-btn{
     width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
@@ -108,7 +87,7 @@
              font-size:15px;font-weight:700;cursor:pointer;margin-top:8px; position:relative; overflow:hidden;}
   .modal-btn.cancel{background:#eee;color:#666;margin-top:8px}
 
-  /* === PREMIUM POPUP DESIGN === */
+  /* Premium Popup */
   .popup-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
@@ -122,14 +101,11 @@
     transform: scale(0.7); opacity: 0;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  .popup-overlay.show .popup-box {
-    transform: scale(1); opacity: 1;
-  }
+  .popup-overlay.show .popup-box { transform: scale(1); opacity: 1; }
   .popup-icon {
     width: 80px; height: 80px; border-radius: 50%;
     margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
-    font-size: 40px; color: #fff;
-    transform: scale(0);
+    font-size: 40px; color: #fff; transform: scale(0);
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s;
   }
   .popup-overlay.show .popup-icon { transform: scale(1); }
@@ -137,37 +113,21 @@
   .popup-icon.error { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 10px 20px rgba(231,76,60,0.4); }
   .popup-message {
     font-size: 17px; font-weight: 700; color: #333;
-    opacity: 0; transform: translateY(10px);
-    transition: all 0.4s ease 0.35s;
+    opacity: 0; transform: translateY(10px); transition: all 0.4s ease 0.35s;
   }
   .popup-overlay.show .popup-message { opacity: 1; transform: translateY(0); }
-  .popup-subtext {
-    font-size: 13px; color: #888; margin-top: 8px;
-    opacity: 0; transition: all 0.4s ease 0.45s;
-  }
+  .popup-subtext { font-size: 13px; color: #888; margin-top: 8px; opacity: 0; transition: all 0.4s ease 0.45s; }
   .popup-overlay.show .popup-subtext { opacity: 1; }
 
-  /* === FULL SCREEN STAR BURST ANIMATION === */
+  /* Star Burst Animation */
   .star-particle {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    background-color: gold;
-    border-radius: 50%;
-    z-index: 99998;
-    pointer-events: none;
+    position: fixed; width: 8px; height: 8px; background-color: gold;
+    border-radius: 50%; z-index: 99998; pointer-events: none;
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
   }
-  
   @keyframes burstFullScreen {
-    0% {
-      transform: translate(0, 0) scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: translate(var(--tx), var(--ty)) scale(0);
-      opacity: 0;
-    }
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
   }
 </style>
 </head>
@@ -198,7 +158,6 @@
     <span>Delivery Charge</span>
     <div class="delivery-input-wrapper">
       <span>৳</span>
-      <!-- ডেলিভারি চার্জ বক্স খালি, ইউজার নিজে লিখবে -->
       <input type="number" id="deliveryInput" placeholder="0" min="0">
     </div>
   </div>
@@ -211,7 +170,8 @@
 
 <nav class="bottom">
   <a href="index.html"><span>🏠</span>Home</a>
-  <a href="cart.html" class="active"><span>🛒</span>Cart</a>
+  <a href="#" id="navSearchBtn"><span>🔍</span>Search</a>
+  <a href="login.html" id="navProfileBtn"><span>👤</span>Profile</a>
   <a href="contact.html"><span>📞</span>Contact</a>
   <a href="admin.html"><span>⚙️</span>Admin</a>
 </nav>
@@ -245,12 +205,15 @@
 </div>
 
 <script type="module">
-import { db, getUserId } from './config.js';
+import { db, auth, getUserId } from './config.js';
 import { ref, onValue, remove, push, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const uid = getUserId();
+let uid = getUserId();
+let isLoggedIn = false;
 let cartData = {};
-let deliveryCharge = 0; // ডিফল্ট 0
+let deliveryCharge = 0;
+let cartUnsubscribe = null;
 
 // === PREMIUM POPUP FUNCTION ===
 function showPopup(type, message, subtext = '') {
@@ -282,7 +245,7 @@ function showPopup(type, message, subtext = '') {
   }, 2500);
 }
 
-// === FULL SCREEN STAR BURST ANIMATION ===
+// === STAR BURST ANIMATION ===
 function fireStarBurst(x, y) {
   const colors = ['#FFD700', '#FF6b00', '#00b09b', '#e74c3c', '#3498db', '#9b59b6', '#FF1493', '#00CED1'];
   const totalStars = 80;
@@ -328,12 +291,27 @@ function driveUrl(url) {
   return url;
 }
 
-onValue(ref(db, `carts/${uid}`), (snap) => {
-  cartData = snap.val() || {};
-  render();
+// === AUTH STATE CHECK ===
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    uid = user.uid;
+    isLoggedIn = true;
+  } else {
+    uid = getUserId();
+    isLoggedIn = false;
+  }
+  loadCartData();
 });
 
-// ডেলিভারি চার্জ ইনপুট লিসেনার
+function loadCartData() {
+  if (cartUnsubscribe) cartUnsubscribe();
+  cartUnsubscribe = onValue(ref(db, `carts/${uid}`), (snap) => {
+    cartData = snap.val() || {};
+    render();
+  });
+}
+
+// ডেলিভারি চার্জ ইনপুট
 document.getElementById('deliveryInput').addEventListener('input', (e) => {
   deliveryCharge = +e.target.value || 0;
   updateTotals();
@@ -362,8 +340,6 @@ function render() {
     subtotal += i.price * i.qty;
     const div = document.createElement('div');
     div.className = 'item';
-    
-    // কোয়ান্টিটি ইনপুট বক্সসহ HTML
     div.innerHTML = `
       <img src="${driveUrl(i.image)}" alt="">
       <div class="item-info">
@@ -377,17 +353,13 @@ function render() {
       </div>
       <button class="remove-btn">🗑</button>`;
     
-    // প্লাস বাটন
     div.querySelector('[data-action="inc"]').onclick = () => 
       update(ref(db, `carts/${uid}/${id}`), { qty: i.qty + 1 });
-    
-    // মাইনাস বাটন
     div.querySelector('[data-action="dec"]').onclick = () => {
       if (i.qty <= 1) remove(ref(db, `carts/${uid}/${id}`));
       else update(ref(db, `carts/${uid}/${id}`), { qty: i.qty - 1 });
     };
     
-    // কোয়ান্টিটি ইনপুটে টাইপ করলে
     const qtyInput = div.querySelector('.qty-input');
     qtyInput.addEventListener('change', (e) => {
       let newQty = parseInt(e.target.value);
@@ -398,7 +370,6 @@ function render() {
       update(ref(db, `carts/${uid}/${id}`), { qty: newQty });
     });
     
-    // ডিলিট বাটন
     div.querySelector('.remove-btn').onclick = () => 
       remove(ref(db, `carts/${uid}/${id}`));
     
@@ -450,6 +421,7 @@ document.getElementById('confirmOrder').onclick = async () => {
   try {
     await set(orderRef, {
       userId: uid,
+      userType: isLoggedIn ? 'registered' : 'guest', // নতুন ফিল্ড
       customer: { name, phone, address },
       items: cartData,
       subtotal,
@@ -466,7 +438,13 @@ document.getElementById('confirmOrder').onclick = async () => {
     showPopup('success', 'অর্ডার কনফার্ম হয়েছে!', 'আমরা শীঘ্রই যোগাযোগ করবো');
     
     setTimeout(() => {
-      location.href = 'index.html';
+      if (isLoggedIn) {
+        // লগইন করা ইউজার হলে My Orders পেজে যাবে
+        location.href = 'my-orders.html';
+      } else {
+        // গেস্ট হলে হোমে যাবে
+        location.href = 'index.html';
+      }
     }, 2500);
     
   } catch (e) {
