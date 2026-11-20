@@ -35,15 +35,48 @@
   .edit-btn{background:#e3f2fd;color:#1976d2;border:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
   .del-btn{background:#ffe6e6;color:#e74c3c;border:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
   
-  .order-row{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  .order-row h4{font-size:15px;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center}
-  .order-row .meta{font-size:13px;color:#666;line-height:1.6;margin-bottom:10px;background:#f9f9f9;padding:10px;border-radius:8px}
+  /* === Orders Summary Dashboard (Excel-like) === */
+  .summary-dashboard {
+    background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
+  }
+  .summary-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .summary-box { padding: 8px; border-radius: 8px; text-align: center; color: #fff; }
+  .summary-box.pending { background: #f39c12; }
+  .summary-box.confirmed { background: #3498db; }
+  .summary-box.shipped { background: #9b59b6; }
+  .summary-box.delivered { background: #27ae60; }
+  .summary-box.cancelled { background: #e74c3c; }
+  .summary-box .val { font-size: 13px; font-weight: 700; }
+  .summary-box .lbl { font-size: 10px; opacity: 0.9; margin-bottom: 2px; text-transform: uppercase; font-weight: 600; }
+  .view-all-btn { background: #eee; color: #333; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+  /* Order Items List with Images */
+  .order-items-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 8px; }
+  .order-item-row { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  .order-item-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .order-item-row img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #ddd; }
+  .order-item-row .details { flex: 1; font-size: 12px; color: #444; }
+  .order-item-row .details b { color: #333; display: block; margin-bottom: 2px; }
+  .order-item-row .details span { color: #ff6b00; font-weight: 600; }
+
+  .order-row{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05); position: relative;}
+  .order-row h4{font-size:15px;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center; padding-right: 30px;}
+  .order-row .meta{font-size:13px;color:#666;line-height:1.6;margin-bottom:10px;}
   .order-row .meta b{color:#222}
-  .order-row .items{font-size:13px;color:#444;margin-bottom:12px;padding-left:5px}
+  .order-row .items{font-size:13px;color:#444;margin-bottom:12px;}
   .status-select{padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-weight:600;background:#f9f9f9;width:100%;outline:none;cursor:pointer}
   .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:0.5px}
-  .pending{background:#f39c12}.confirmed{background:#3498db}.shipped{background:#9b59b6}.delivered{background:#27ae60}.cancelled{background:#e74c3c}
+  .pending-badge{background:#f39c12}.confirmed-badge{background:#3498db}.shipped-badge{background:#9b59b6}.delivered-badge{background:#27ae60}.cancelled-badge{background:#e74c3c}
   
+  /* Order Delete Button */
+  .order-delete-btn {
+    position: absolute; top: 12px; right: 12px; background: #ffe6e6; color: #e74c3c; 
+    border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; 
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
   nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px;font-weight:600}
   nav.bottom a.active{color:#ff6b00}
@@ -71,43 +104,18 @@
   .btn-save { background: #ff6b00; color: #fff; }
   .btn-cancel { background: #eee; color: #666; }
 
-  /* === PREMIUM POPUP DESIGN === */
-  .popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-    z-index: 99999; display: none; align-items: center; justify-content: center;
-  }
+  /* Premium Popup */
+  .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 99999; display: none; align-items: center; justify-content: center; }
   .popup-overlay.show { display: flex; }
-  .popup-box {
-    background: #fff; border-radius: 24px; padding: 30px 25px;
-    width: 85%; max-width: 320px; text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    transform: scale(0.7); opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .popup-overlay.show .popup-box {
-    transform: scale(1); opacity: 1;
-  }
-  .popup-icon {
-    width: 80px; height: 80px; border-radius: 50%;
-    margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
-    font-size: 40px; color: #fff;
-    transform: scale(0);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s;
-  }
+  .popup-box { background: #fff; border-radius: 24px; padding: 30px 25px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: scale(0.7); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .popup-overlay.show .popup-box { transform: scale(1); opacity: 1; }
+  .popup-icon { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff; transform: scale(0); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s; }
   .popup-overlay.show .popup-icon { transform: scale(1); }
   .popup-icon.success { background: linear-gradient(135deg, #00b09b, #96c93d); box-shadow: 0 10px 20px rgba(0,176,155,0.4); }
   .popup-icon.error { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 10px 20px rgba(231,76,60,0.4); }
-  .popup-message {
-    font-size: 17px; font-weight: 700; color: #333;
-    opacity: 0; transform: translateY(10px);
-    transition: all 0.4s ease 0.35s;
-  }
+  .popup-message { font-size: 17px; font-weight: 700; color: #333; opacity: 0; transform: translateY(10px); transition: all 0.4s ease 0.35s; }
   .popup-overlay.show .popup-message { opacity: 1; transform: translateY(0); }
-  .popup-subtext {
-    font-size: 13px; color: #888; margin-top: 8px;
-    opacity: 0; transition: all 0.4s ease 0.45s;
-  }
+  .popup-subtext { font-size: 13px; color: #888; margin-top: 8px; opacity: 0; transition: all 0.4s ease 0.45s; }
   .popup-overlay.show .popup-subtext { opacity: 1; }
 </style>
 </head>
@@ -222,6 +230,40 @@
   
   <!-- Orders Tab -->
   <div id="tab-orders" class="panel" style="display:none">
+    <!-- Order Summary Dashboard -->
+    <div class="summary-dashboard">
+      <div class="summary-title">
+        <span>📊 Order Summary</span>
+        <button class="view-all-btn" id="viewAllSummaryBtn">বিস্তারিত দেখুন</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-box pending">
+          <div class="val" id="sum-pending">৳0</div>
+          <div class="lbl">Pending</div>
+        </div>
+        <div class="summary-box confirmed">
+          <div class="val" id="sum-confirmed">৳0</div>
+          <div class="lbl">Confirmed</div>
+        </div>
+        <div class="summary-box shipped">
+          <div class="val" id="sum-shipped">৳0</div>
+          <div class="lbl">Shipped</div>
+        </div>
+        <div class="summary-box delivered">
+          <div class="val" id="sum-delivered">৳0</div>
+          <div class="lbl">Delivered</div>
+        </div>
+        <div class="summary-box cancelled">
+          <div class="val" id="sum-cancelled">৳0</div>
+          <div class="lbl">Cancelled</div>
+        </div>
+        <div class="summary-box" style="background:#555;">
+          <div class="val" id="sum-total">৳0</div>
+          <div class="lbl">Total</div>
+        </div>
+      </div>
+    </div>
+
     <h3 style="margin-bottom:10px;font-size:16px;color:#333">All Orders</h3>
     <div id="orderList"></div>
   </div>
@@ -246,6 +288,40 @@
   </div>
 </div>
 
+<!-- Full Summary Modal -->
+<div class="modal" id="summaryModal">
+  <div class="modal-content">
+    <h3>📊 সম্পূর্ণ হিসাব</h3>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#fff3e0; border-radius:8px;">
+        <span style="font-weight:600; color:#f39c12;">⏳ Pending</span>
+        <span style="font-weight:700;" id="modal-sum-pending">৳0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#e3f2fd; border-radius:8px;">
+        <span style="font-weight:600; color:#3498db;">✅ Confirmed</span>
+        <span style="font-weight:700;" id="modal-sum-confirmed">৳0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#f3e5f5; border-radius:8px;">
+        <span style="font-weight:600; color:#9b59b6;">🚚 Shipped</span>
+        <span style="font-weight:700;" id="modal-sum-shipped">৳0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#e8f5e9; border-radius:8px;">
+        <span style="font-weight:600; color:#27ae60;">📦 Delivered</span>
+        <span style="font-weight:700;" id="modal-sum-delivered">৳0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#ffebee; border-radius:8px;">
+        <span style="font-weight:600; color:#e74c3c;">❌ Cancelled</span>
+        <span style="font-weight:700;" id="modal-sum-cancelled">৳0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#f5f5f5; border-radius:8px; border: 2px solid #333;">
+        <span style="font-weight:700; color:#333;">💰 Grand Total</span>
+        <span style="font-weight:700; color:#ff6b00;" id="modal-sum-total">৳0</span>
+      </div>
+    </div>
+    <button class="btn-cancel" id="closeSummaryBtn" style="width:100%; padding:12px;">Close</button>
+  </div>
+</div>
+
 <nav class="bottom">
   <a href="index.html"><span>🏠</span>Home</a>
   <a href="cart.html"><span>🛒</span>Cart</a>
@@ -259,6 +335,7 @@ import { ref, onValue, push, remove, update, set, get } from "https://www.gstati
 const ADMIN_PASSWORD = 'pikari2024'; 
 let initialized = false;
 let allCategories = [];
+let allOrders = {}; // Store orders for summary
 
 // === PREMIUM POPUP FUNCTION ===
 function showPopup(type, message, subtext = '') {
@@ -267,15 +344,11 @@ function showPopup(type, message, subtext = '') {
   const msg = document.getElementById('popupMsg');
   const sub = document.getElementById('popupSubtext');
   
-  // Reset animation
   overlay.classList.remove('show');
   icon.className = 'popup-icon';
   icon.textContent = '';
-  
-  // Force reflow to restart animation
   void overlay.offsetWidth;
   
-  // Set content
   if (type === 'success') {
     icon.classList.add('success');
     icon.textContent = '✓';
@@ -287,10 +360,8 @@ function showPopup(type, message, subtext = '') {
   }
   sub.textContent = subtext;
   
-  // Show
   overlay.classList.add('show');
   
-  // Auto hide after 2.5 seconds
   setTimeout(() => {
     overlay.classList.remove('show');
   }, 2500);
@@ -356,7 +427,7 @@ function initAdmin() {
   // Add Category
   document.getElementById('addCatBtn').onclick = async () => {
     const catName = document.getElementById('catName').value.trim();
-    if (!catName) { showPopup('error', 'ক্যাটাগরির নাম দিন', 'নাম ছাড়া যোগ করা যাবে না'); return; }
+    if (!catName) { showPopup('error', 'ক্যাটাগরির নাম দিন', 'নাম ছাড়া যোগ করা যাবে না'); return; }
     try {
       await push(ref(db, 'categories'), { name: catName, createdAt: Date.now() });
       document.getElementById('catName').value = '';
@@ -407,7 +478,7 @@ function initAdmin() {
     }
   };
   
-  // Load Products (With Edit Button)
+  // Load Products
   onValue(ref(db, 'products'), (snap) => {
     const list = document.getElementById('productList'); list.innerHTML = '';
     const entries = Object.entries(snap.val() || {}).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
@@ -450,7 +521,7 @@ function initAdmin() {
     });
   });
 
-  // Update Product Logic
+  // Update Product
   document.getElementById('saveEditBtn').onclick = async () => {
     const id = document.getElementById('editId').value;
     const name = document.getElementById('editName').value.trim();
@@ -588,19 +659,73 @@ function initAdmin() {
     }
   };
 
-  // Orders Logic
+  // === Orders Logic with Summary Dashboard ===
   onValue(ref(db, 'orders'), (snap) => {
-    const list = document.getElementById('orderList'); list.innerHTML = '';
-    const entries = Object.entries(snap.val() || {}).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-    if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>'; return; }
+    allOrders = snap.val() || {};
+    const entries = Object.entries(allOrders).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    
+    // Calculate Summary
+    let sumPending = 0, sumConfirmed = 0, sumShipped = 0, sumDelivered = 0, sumCancelled = 0, sumTotal = 0;
     entries.forEach(([id, o]) => {
-      const items = Object.values(o.items || {}).map(i => `${i.name} ×${i.qty}`).join(', ');
+      const total = o.total || 0;
+      sumTotal += total;
+      if (o.status === 'pending') sumPending += total;
+      else if (o.status === 'confirmed') sumConfirmed += total;
+      else if (o.status === 'shipped') sumShipped += total;
+      else if (o.status === 'delivered') sumDelivered += total;
+      else if (o.status === 'cancelled') sumCancelled += total;
+    });
+    
+    // Update Dashboard Boxes
+    document.getElementById('sum-pending').textContent = '৳' + sumPending;
+    document.getElementById('sum-confirmed').textContent = '৳' + sumConfirmed;
+    document.getElementById('sum-shipped').textContent = '৳' + sumShipped;
+    document.getElementById('sum-delivered').textContent = '৳' + sumDelivered;
+    document.getElementById('sum-cancelled').textContent = '৳' + sumCancelled;
+    document.getElementById('sum-total').textContent = '৳' + sumTotal;
+    
+    // Update Modal
+    document.getElementById('modal-sum-pending').textContent = '৳' + sumPending;
+    document.getElementById('modal-sum-confirmed').textContent = '৳' + sumConfirmed;
+    document.getElementById('modal-sum-shipped').textContent = '৳' + sumShipped;
+    document.getElementById('modal-sum-delivered').textContent = '৳' + sumDelivered;
+    document.getElementById('modal-sum-cancelled').textContent = '৳' + sumCancelled;
+    document.getElementById('modal-sum-total').textContent = '৳' + sumTotal;
+    
+    // Render Orders List
+    const list = document.getElementById('orderList'); list.innerHTML = '';
+    if (entries.length === 0) { list.innerHTML = '<p class="empty-text">কোনো অর্ডার নেই</p>'; return; }
+    
+    entries.forEach(([id, o]) => {
       const date = new Date(o.createdAt).toLocaleString('bn-BD');
+      
+      // Build Items list with images
+      let itemsHtml = '';
+      Object.values(o.items || {}).forEach(item => {
+        itemsHtml += `
+          <div class="order-item-row">
+            <img src="${driveUrl(item.image)}" alt="">
+            <div class="details">
+              <b>${item.name}</b>
+              <span>৳${item.price} × ${item.qty} = ৳${item.price * item.qty}</span>
+            </div>
+          </div>
+        `;
+      });
+
       const row = document.createElement('div'); row.className = 'order-row';
       row.innerHTML = `
-        <h4>${o.customer?.name || 'Unknown'} <span class="badge ${o.status}">${o.status}</span></h4>
-        <div class="meta">📞 <b>${o.customer?.phone || ''}</b><br>📍 ${o.customer?.address || ''}<br>💰 Total: <b>৳${o.total}</b> (${o.payment.toUpperCase()})<br>🕐 ${date}</div>
-        <div class="items">📦 <b>Items:</b> ${items}</div>
+        <button class="order-delete-btn" data-id="${id}" title="Delete Order">🗑</button>
+        <h4>${o.customer?.name || 'Unknown'} <span class="badge ${o.status}-badge">${o.status}</span></h4>
+        <div class="meta">
+          📞 <b>${o.customer?.phone || ''}</b><br>
+          📍 ${o.customer?.address || ''}<br>
+          💰 Total: <b>৳${o.total}</b> (${o.payment.toUpperCase()})<br>
+          🕐 ${date}
+        </div>
+        <div class="order-items-list">
+          ${itemsHtml}
+        </div>
         <select class="status-select" data-id="${id}">
           <option value="pending" ${o.status==='pending'?'selected':''}>⏳ Pending</option>
           <option value="confirmed" ${o.status==='confirmed'?'selected':''}>✅ Confirmed</option>
@@ -608,16 +733,39 @@ function initAdmin() {
           <option value="delivered" ${o.status==='delivered'?'selected':''}>📦 Delivered</option>
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Cancelled</option>
         </select>`;
+      
+      // Status Change
       row.querySelector('.status-select').onchange = async (e) => {
         try {
           await update(ref(db, 'orders/' + id), { status: e.target.value });
           showPopup('success', 'স্ট্যাটাস আপডেট হয়েছে', 'Order status changed');
         } catch (err) { showPopup('error', 'আপডেট করা যায়নি', err.message); }
       };
+
+      // Delete Order
+      row.querySelector('.order-delete-btn').onclick = async () => {
+        if (confirm('আপনি কি নিশ্চিত এই অর্ডারটি ডিলিট করতে চান?')) {
+          try {
+            await remove(ref(db, 'orders/' + id));
+            showPopup('success', 'অর্ডার ডিলিট হয়েছে', 'Order deleted successfully');
+          } catch (err) {
+            showPopup('error', 'ডিলিট করা যায়নি', err.message);
+          }
+        }
+      };
+      
       list.appendChild(row);
     });
   });
 }
+
+// Summary Modal Logic
+document.getElementById('viewAllSummaryBtn').onclick = () => {
+  document.getElementById('summaryModal').classList.add('show');
+};
+document.getElementById('closeSummaryBtn').onclick = () => {
+  document.getElementById('summaryModal').classList.remove('show');
+};
 </script>
 </body>
 </html>
