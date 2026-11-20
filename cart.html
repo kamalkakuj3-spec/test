@@ -6,7 +6,7 @@
 <title>Cart - Pikari Bazar</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:130px}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;padding-bottom:200px} /* বডির নিচে বড় প্যাডিং যাতে বাটন প্রোডাক্ট ঢেকে না দেয় */
   
   header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;
          padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -117,7 +117,7 @@
   }
   .popup-overlay.show .popup-subtext { opacity: 1; }
 
-  /* === STAR BURST (CONFETTI) ANIMATION === */
+  /* === FULL SCREEN STAR BURST ANIMATION === */
   .star-particle {
     position: fixed;
     width: 8px;
@@ -126,9 +126,11 @@
     border-radius: 50%;
     z-index: 99998;
     pointer-events: none;
-    box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
   }
-  @keyframes burstUp {
+  
+  /* Full 360 Degree Burst */
+  @keyframes burstFullScreen {
     0% {
       transform: translate(0, 0) scale(1);
       opacity: 1;
@@ -250,42 +252,47 @@ function showPopup(type, message, subtext = '') {
   }, 2500);
 }
 
-// === STAR BURST / CONFETTI ANIMATION ===
+// === FULL SCREEN STAR BURST ANIMATION ===
 function fireStarBurst(x, y) {
-  const colors = ['#FFD700', '#FF6b00', '#00b09b', '#e74c3c', '#3498db', '#9b59b6'];
+  const colors = ['#FFD700', '#FF6b00', '#00b09b', '#e74c3c', '#3498db', '#9b59b6', '#FF1493', '#00CED1'];
+  const totalStars = 80; // অনেক বেশি তারা
   
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < totalStars; i++) {
     const star = document.createElement('div');
     star.className = 'star-particle';
     
     // Random color
     const color = colors[Math.floor(Math.random() * colors.length)];
     star.style.backgroundColor = color;
-    star.style.boxShadow = `0 0 6px ${color}`;
+    star.style.boxShadow = `0 0 8px ${color}`;
     
     // Random size
-    const size = 6 + Math.random() * 8;
+    const size = 6 + Math.random() * 10;
     star.style.width = size + 'px';
     star.style.height = size + 'px';
+    if (Math.random() > 0.5) star.style.borderRadius = '50%'; // Some circles, some squares
     
     // Start position at button center
     star.style.left = x + 'px';
     star.style.top = y + 'px';
     
-    // Random direction (mainly upwards)
-    const tx = (Math.random() - 0.5) * 200; // Spread horizontally
-    const ty = -100 - Math.random() * 200;  // Go up first
+    // 360 Degree Full Screen Spread (বৃত্তাকারভাবে সব দিকে ছড়াবে)
+    const angle = Math.random() * Math.PI * 2; // 0 to 360 degrees
+    const distance = 150 + Math.random() * 400; // 150px to 550px দূরত্ব
+    
+    // ব্যাখ্যা: X এবং Y উভয় দিকেই র‍্যান্ডম দূরত্ব তৈরি
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance - 150; // একটু উপরে বাড়তি ঠেলা দিলাম যাতে উপরের দিকেও যায়
     
     star.style.setProperty('--tx', tx + 'px');
     star.style.setProperty('--ty', ty + 'px');
     
     // Random duration
-    const duration = 1 + Math.random() * 0.5;
-    star.style.animation = `burstUp ${duration}s ease-out forwards`;
+    const duration = 1.2 + Math.random() * 1.0;
+    star.style.animation = `burstFullScreen ${duration}s ease-out forwards`;
     
     document.body.appendChild(star);
     
-    // Remove after animation
     setTimeout(() => star.remove(), duration * 1000);
   }
 }
@@ -373,7 +380,7 @@ document.getElementById('cancelModal').onclick = () => {
   document.getElementById('checkoutModal').classList.remove('show');
 };
 
-// Confirm Order with Star Burst Animation
+// Confirm Order with Full Screen Star Burst
 document.getElementById('confirmOrder').onclick = async () => {
   const name = document.getElementById('cName').value.trim();
   const phone = document.getElementById('cPhone').value.trim();
@@ -391,7 +398,7 @@ document.getElementById('confirmOrder').onclick = async () => {
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
   
-  // Fire star burst animation
+  // Fire star burst animation (full screen)
   fireStarBurst(x, y);
   
   btn.textContent = 'Processing...';
