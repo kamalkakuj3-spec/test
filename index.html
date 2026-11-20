@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pikari Bazar</title>
-<!-- Cloudinary Video Player CSS -->
 <link href="https://unpkg.com/cloudinary-video-player@1.9.9/dist/cld-video-player.min.css" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -12,8 +11,16 @@
   
   header{position:sticky;top:0;z-index:100;background:#ff6b00;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
   header h1{font-size:18px;font-weight:700}
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .search-icon, .contact-icon { font-size: 20px; text-decoration: none; color: #fff; cursor: pointer; }
   .cart-icon{position:relative;font-size:22px;text-decoration:none;color:#fff}
   .cart-count{position:absolute;top:-6px;right:-8px;background:#fff;color:#ff6b00;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+
+  /* Search Bar */
+  .search-bar { display: none; padding: 10px 12px; background: #fff; border-bottom: 1px solid #eee; }
+  .search-bar.show { display: flex; gap: 8px; }
+  .search-bar input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; outline: none; }
+  .search-bar button { padding: 10px 16px; background: #ff6b00; color: #fff; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; }
   
   /* Media Containers */
   .media-container { width: 100%; height: 200px; background: #000; display: none; position: relative; overflow: hidden; }
@@ -40,7 +47,56 @@
   .cat-btn.active { background: #ff6b00; color: #fff; border-color: #ff6b00; }
   .filter-icon { background: #ff6b00; color: #fff; border: none; padding: 7px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 
-  /* Popup Modal (Bottom Sheet) */
+  /* Products Grid */
+  .products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
+  .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column}
+  .card img{width:100%;height:150px;object-fit:cover;background:#eee;pointer-events:none;user-select:none;-webkit-user-drag:none;cursor:pointer}
+  .card-body{padding:10px;display:flex;flex-direction:column;flex:1}
+  /* গ্যাপ কমানো হয়েছে (margin-bottom: 2px) */
+  .card-body h3{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+  .price{color:#ff6b00;font-weight:700;font-size:15px;margin-bottom:8px}
+  .btn{width:100%;padding:8px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;margin-top:auto}
+  .btn:active{background:#e55f00}
+  
+  /* Center Toast Popup (Unique Style) */
+  .center-toast {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: linear-gradient(135deg, #ff6b00, #ff8c33);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .center-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* Product Details Modal */
+  .product-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .product-modal.show { display: flex; }
+  .product-modal-content { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; animation: zoomIn 0.3s ease; }
+  @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .product-modal-content img { width: 100%; height: 250px; object-fit: cover; }
+  .modal-body { padding: 16px; }
+  .modal-body h2 { font-size: 18px; color: #333; margin-bottom: 8px; }
+  .modal-body .modal-price { font-size: 20px; color: #ff6b00; font-weight: 700; margin-bottom: 12px; }
+  .modal-body .modal-desc { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 16px; }
+  .close-modal-btn { width: 100%; padding: 12px; background: #f0f0f0; color: #333; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+  /* Filter Modal */
   .filter-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: flex-end; justify-content: center; }
   .filter-modal.show { display: flex; }
   .filter-content { background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; padding: 20px; max-height: 80vh; display: flex; flex-direction: column; animation: slideUp 0.3s ease; }
@@ -50,7 +106,6 @@
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 0 5px; }
   .filter-list { overflow-y: auto; flex: 1; margin-bottom: 15px; }
   .filter-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-  .filter-item:last-child { border-bottom: none; }
   .filter-item span { font-size: 14px; font-weight: 500; color: #333; }
   .filter-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: #ff6b00; cursor: pointer; }
   .apply-btn { width: 100%; padding: 14px; background: #ff6b00; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -61,20 +116,8 @@
   .spinner { width: 50px; height: 50px; border: 5px solid #ffe6d9; border-top: 5px solid #ff6b00; border-radius: 50%; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-  /* Products Grid */
-  .products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
-  .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column}
-  .card img{width:100%;height:150px;object-fit:cover;background:#eee;pointer-events:none;user-select:none;-webkit-user-drag:none}
-  .card-body{padding:10px;display:flex;flex-direction:column;flex:1}
-  .card-body h3{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
-  .price{color:#ff6b00;font-weight:700;font-size:15px;margin-bottom:8px}
-  .btn{width:100%;padding:8px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;margin-top:auto}
-  .btn:active{background:#e55f00}
-  
   .empty{text-align:center;padding:60px 20px;color:#888}
   .empty span{font-size:48px;display:block;margin-bottom:12px}
-  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:200}
-  .toast.show{opacity:1}
   nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0;z-index:100}
   nav.bottom a{flex:1;text-align:center;text-decoration:none;color:#888;font-size:11px;padding:4px}
   nav.bottom a.active{color:#ff6b00}
@@ -90,8 +133,18 @@
 
 <header>
   <h1>🛍️ Pikari Bazar</h1>
-  <a href="cart.html" class="cart-icon">🛒<span class="cart-count" id="cartCount">0</span></a>
+  <div class="header-right">
+    <span class="search-icon" id="searchToggleBtn">🔍</span>
+    <a href="contact.html" class="contact-icon">📞</a>
+    <a href="cart.html" class="cart-icon">🛒<span class="cart-count" id="cartCount">0</span></a>
+  </div>
 </header>
+
+<!-- Search Bar -->
+<div class="search-bar" id="searchBar">
+  <input type="text" id="searchInput" placeholder="Search products...">
+  <button id="searchBtn">Search</button>
+</div>
 
 <!-- Media Section (Video OR Slider) -->
 <div id="videoContainer" class="media-container">
@@ -108,7 +161,7 @@
   <div class="notice-text" id="noticeText"></div>
 </div>
 
-<!-- Category Filter Bar (with Filter Button) -->
+<!-- Category Filter Bar -->
 <div class="category-bar">
   <div class="cat-scroll" id="categoryBar">
     <div class="cat-btn active" data-cat="all">All</div>
@@ -118,26 +171,39 @@
 
 <div class="products" id="productList"></div>
 
-<!-- Popup Filter Modal -->
+<!-- Center Toast Popup -->
+<div class="center-toast" id="centerToast">✅ Added to cart!</div>
+
+<!-- Product Details Modal -->
+<div class="product-modal" id="productModal">
+  <div class="product-modal-content">
+    <img id="modalImg" src="" alt="">
+    <div class="modal-body">
+      <h2 id="modalTitle"></h2>
+      <p class="modal-price" id="modalPrice"></p>
+      <p class="modal-desc" id="modalDesc"></p>
+      <button class="close-modal-btn" id="closeProductModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Modal -->
 <div class="filter-modal" id="filterModal">
   <div class="filter-content">
     <div class="filter-header">
       <h3>🗂️ Select Categories</h3>
       <button class="close-btn" id="closeFilterBtn">×</button>
     </div>
-    <div class="filter-list" id="filterList">
-      <!-- Checkboxes will be added here dynamically -->
-    </div>
+    <div class="filter-list" id="filterList"></div>
     <button class="clear-btn" id="clearFilterBtn">Clear All</button>
     <button class="apply-btn" id="applyFilterBtn">Apply Filter</button>
   </div>
 </div>
 
-<div class="toast" id="toast">Added to cart!</div>
-
 <nav class="bottom">
   <a href="index.html" class="active"><span>🏠</span>Home</a>
   <a href="cart.html"><span>🛒</span>Cart</a>
+  <a href="contact.html"><span>📞</span>Contact</a>
   <a href="admin.html"><span>⚙️</span>Admin</a>
 </nav>
 
@@ -147,14 +213,16 @@ import { ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.7.
 
 const uid = getUserId();
 const list = document.getElementById('productList');
-const toast = document.getElementById('toast');
 const loader = document.getElementById('loaderOverlay');
 const video = document.getElementById('cloudinaryVideo');
+const centerToast = document.getElementById('centerToast');
+const productModal = document.getElementById('productModal');
 
 let allProducts = [];
 let currentCategory = 'all';
 let allCategories = [];
-let selectedCategories = new Set(); // For multi-select filter
+let selectedCategories = new Set();
+let searchQuery = '';
 
 function driveUrl(url, size = 400) {
   if (!url) return 'https://via.placeholder.com/300x300?text=No+Image';
@@ -163,12 +231,27 @@ function driveUrl(url, size = 400) {
   return url;
 }
 
-// --- Media Logic (Video OR Slider based on admin setting) ---
+// Search toggle
+document.getElementById('searchToggleBtn').onclick = () => {
+  const bar = document.getElementById('searchBar');
+  bar.classList.toggle('show');
+  if (bar.classList.contains('show')) document.getElementById('searchInput').focus();
+};
+
+document.getElementById('searchBtn').onclick = () => {
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  renderProducts();
+};
+
+document.getElementById('searchInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') document.getElementById('searchBtn').click();
+});
+
+// --- Media Logic ---
 onValue(ref(db, 'mediaSettings'), (snap) => {
   const settings = snap.val() || {};
   const videoContainer = document.getElementById('videoContainer');
   const sliderContainer = document.getElementById('sliderContainer');
-  
   if (settings.mode === 'video' && settings.videoUrl) {
     videoContainer.style.display = 'block';
     sliderContainer.style.display = 'none';
@@ -185,7 +268,7 @@ onValue(ref(db, 'mediaSettings'), (snap) => {
   }
 });
 
-// --- Auto Pause Video When Scrolled Out of View ---
+// --- Auto Pause Video ---
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -195,7 +278,6 @@ const observer = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.1 });
-
 const videoContainer = document.getElementById('videoContainer');
 if (videoContainer) observer.observe(videoContainer);
 
@@ -254,18 +336,15 @@ onValue(ref(db, 'notice'), (snap) => {
   }
 });
 
-// --- Category Logic (Top bar buttons + Filter Popup) ---
+// --- Category Logic ---
 onValue(ref(db, 'categories'), (snap) => {
   const data = snap.val() || {};
   allCategories = Object.values(data).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  
-  // Top bar quick buttons
   const bar = document.getElementById('categoryBar');
   bar.innerHTML = '<div class="cat-btn active" data-cat="all">All</div>';
   allCategories.forEach(c => {
     bar.innerHTML += `<div class="cat-btn" data-cat="${c.name}">${c.name}</div>`;
   });
-  
   bar.querySelectorAll('.cat-btn').forEach(btn => {
     btn.onclick = () => {
       bar.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -277,38 +356,26 @@ onValue(ref(db, 'categories'), (snap) => {
     };
   });
 
-  // Filter Popup List
   const filterList = document.getElementById('filterList');
   filterList.innerHTML = '';
   allCategories.forEach(c => {
     const label = document.createElement('label');
     label.className = 'filter-item';
-    label.innerHTML = `
-      <span>${c.name}</span>
-      <input type="checkbox" value="${c.name}" ${selectedCategories.has(c.name) ? 'checked' : ''}>
-    `;
+    label.innerHTML = `<span>${c.name}</span><input type="checkbox" value="${c.name}" ${selectedCategories.has(c.name) ? 'checked' : ''}>`;
     filterList.appendChild(label);
   });
 });
 
-// --- Filter Modal Logic ---
+// --- Filter Modal ---
 const filterModal = document.getElementById('filterModal');
-document.getElementById('openFilterBtn').onclick = () => {
-  filterModal.classList.add('show');
-};
-document.getElementById('closeFilterBtn').onclick = () => {
-  filterModal.classList.remove('show');
-};
-filterModal.onclick = (e) => {
-  if (e.target === filterModal) filterModal.classList.remove('show');
-};
+document.getElementById('openFilterBtn').onclick = () => filterModal.classList.add('show');
+document.getElementById('closeFilterBtn').onclick = () => filterModal.classList.remove('show');
+filterModal.onclick = (e) => { if (e.target === filterModal) filterModal.classList.remove('show'); };
 
 document.getElementById('applyFilterBtn').onclick = () => {
   selectedCategories.clear();
   const checkboxes = document.querySelectorAll('#filterList input[type="checkbox"]:checked');
   checkboxes.forEach(cb => selectedCategories.add(cb.value));
-  
-  // Update top bar buttons
   const bar = document.getElementById('categoryBar');
   bar.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
   if (selectedCategories.size === 0) {
@@ -320,9 +387,7 @@ document.getElementById('applyFilterBtn').onclick = () => {
     if (btn) btn.classList.add('active');
   } else {
     currentCategory = 'multi';
-    bar.querySelector('[data-cat="all"]').classList.remove('active');
   }
-  
   filterModal.classList.remove('show');
   renderProducts();
 };
@@ -349,13 +414,12 @@ onValue(ref(db, 'products'), (snap) => {
 function renderProducts() {
   list.innerHTML = '';
   let filtered;
-  
-  if (currentCategory === 'all') {
-    filtered = allProducts;
-  } else if (currentCategory === 'multi') {
-    filtered = allProducts.filter(([id, p]) => selectedCategories.has(p.category));
-  } else {
-    filtered = allProducts.filter(([id, p]) => p.category === currentCategory);
+  if (currentCategory === 'all') filtered = allProducts;
+  else if (currentCategory === 'multi') filtered = allProducts.filter(([id, p]) => selectedCategories.has(p.category));
+  else filtered = allProducts.filter(([id, p]) => p.category === currentCategory);
+
+  if (searchQuery) {
+    filtered = filtered.filter(([id, p]) => p.name.toLowerCase().includes(searchQuery));
   }
     
   if (filtered.length === 0) {
@@ -373,10 +437,22 @@ function renderProducts() {
         <p class="price">৳${p.price}</p>
         <button class="btn" data-id="${id}">Add to Cart</button>
       </div>`;
+    card.querySelector('img').onclick = () => openProductModal(p);
     card.querySelector('.btn').onclick = () => addToCart(id, p);
     list.appendChild(card);
   });
 }
+
+// --- Product Modal Logic ---
+function openProductModal(p) {
+  document.getElementById('modalImg').src = driveUrl(p.image, 600);
+  document.getElementById('modalTitle').textContent = p.name;
+  document.getElementById('modalPrice').textContent = '৳' + p.price;
+  document.getElementById('modalDesc').textContent = p.desc || 'No description available.';
+  productModal.classList.add('show');
+}
+document.getElementById('closeProductModal').onclick = () => productModal.classList.remove('show');
+productModal.onclick = (e) => { if (e.target === productModal) productModal.classList.remove('show'); };
 
 async function addToCart(pid, product) {
   const cartRef = ref(db, `carts/${uid}/${pid}`);
@@ -386,7 +462,13 @@ async function addToCart(pid, product) {
     productId: pid, name: product.name, price: product.price,
     image: product.image, qty: existing ? existing.qty + 1 : 1
   });
-  showToast('✅ Added to cart');
+  showCenterToast('✅ Added to cart!');
+}
+
+function showCenterToast(msg) {
+  centerToast.textContent = msg;
+  centerToast.classList.add('show');
+  setTimeout(() => centerToast.classList.remove('show'), 2000);
 }
 
 onValue(ref(db, `carts/${uid}`), (snap) => {
@@ -394,12 +476,6 @@ onValue(ref(db, `carts/${uid}`), (snap) => {
   const count = Object.values(c).reduce((s, i) => s + i.qty, 0);
   document.getElementById('cartCount').textContent = count;
 });
-
-function showToast(msg) {
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1500);
-}
 </script>
 </body>
 </html>
