@@ -50,51 +50,38 @@
   /* Products Grid */
   .products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}
   .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column}
-  .card img{width:100%;height:150px;object-fit:cover;background:#eee;pointer-events:none;user-select:none;-webkit-user-drag:none;cursor:pointer}
+  .card img{width:100%;height:150px;object-fit:cover;background:#eee;user-select:none;-webkit-user-drag:none;cursor:pointer}
   .card-body{padding:10px;display:flex;flex-direction:column;flex:1}
-  /* গ্যাপ কমানো হয়েছে (margin-bottom: 2px) */
-  .card-body h3{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
-  .price{color:#ff6b00;font-weight:700;font-size:15px;margin-bottom:8px}
+  
+  /* গ্যাপ ফিক্স: min-height বাদ দেওয়া হয়েছে এবং মার্জিন কমিয়ে 2px করা হয়েছে */
+  .card-body h3{font-size:13px;font-weight:600;line-height:1.3;margin:0 0 2px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  
+  .price{color:#ff6b00;font-weight:700;font-size:15px;margin:0 0 8px 0;}
   .btn{width:100%;padding:8px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;margin-top:auto}
   .btn:active{background:#e55f00}
   
-  /* Center Toast Popup (Unique Style) */
+  /* Center Toast Popup */
   .center-toast {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
-    background: linear-gradient(135deg, #ff6b00, #ff8c33);
-    color: #fff;
-    padding: 16px 28px;
-    border-radius: 15px;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+    background: linear-gradient(135deg, #ff6b00, #ff8c33); color: #fff;
+    padding: 16px 28px; border-radius: 15px; font-size: 15px; font-weight: 700;
+    box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4); z-index: 10000;
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center; display: flex; align-items: center; gap: 10px;
   }
-  .center-toast.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+  .center-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
   /* Product Details Modal */
   .product-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: none; align-items: center; justify-content: center; padding: 20px; }
   .product-modal.show { display: flex; }
-  .product-modal-content { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; overflow: hidden; animation: zoomIn 0.3s ease; }
+  .product-modal-content { background: #fff; border-radius: 16px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; animation: zoomIn 0.3s ease; }
   @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .product-modal-content img { width: 100%; height: 250px; object-fit: cover; }
   .modal-body { padding: 16px; }
   .modal-body h2 { font-size: 18px; color: #333; margin-bottom: 8px; }
   .modal-body .modal-price { font-size: 20px; color: #ff6b00; font-weight: 700; margin-bottom: 12px; }
-  .modal-body .modal-desc { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 16px; }
-  .close-modal-btn { width: 100%; padding: 12px; background: #f0f0f0; color: #333; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+  .modal-body .modal-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px; white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 8px;}
+  .close-modal-btn { width: 100%; padding: 12px; background: #ff6b00; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
   /* Filter Modal */
   .filter-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; align-items: flex-end; justify-content: center; }
@@ -430,6 +417,8 @@ function renderProducts() {
   filtered.forEach(([id, p]) => {
     const card = document.createElement('div');
     card.className = 'card';
+    
+    // কার্ডের ভেতরের HTML - ছবিতে ক্লিক করলে মডাল খুলবে
     card.innerHTML = `
       <img src="${driveUrl(p.image, 400)}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x300?text=Error'">
       <div class="card-body">
@@ -437,20 +426,35 @@ function renderProducts() {
         <p class="price">৳${p.price}</p>
         <button class="btn" data-id="${id}">Add to Cart</button>
       </div>`;
+    
+    // ছবির উপর ক্লিক ইভেন্ট
     card.querySelector('img').onclick = () => openProductModal(p);
-    card.querySelector('.btn').onclick = () => addToCart(id, p);
+    
+    // Add to Cart বাটনে ক্লিক ইভেন্ট (ইভেন্ট বাবলিং বন্ধ করা হয়েছে)
+    card.querySelector('.btn').onclick = (e) => {
+      e.stopPropagation();
+      addToCart(id, p);
+    };
+    
     list.appendChild(card);
   });
 }
 
 // --- Product Modal Logic ---
 function openProductModal(p) {
+  // যদি ডেসক্রিপশন না থাকে, তবে কিছুই দেখাবে না (অথবা চাইলে মেসেজ দেখাতে পারেন)
+  if (!p.desc || p.desc.trim() === '') {
+    showCenterToast('ℹ️ এই প্রোডাক্টের কোনো বিবরণ নেই');
+    return;
+  }
+  
   document.getElementById('modalImg').src = driveUrl(p.image, 600);
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalPrice').textContent = '৳' + p.price;
-  document.getElementById('modalDesc').textContent = p.desc || 'No description available.';
+  document.getElementById('modalDesc').textContent = p.desc;
   productModal.classList.add('show');
 }
+
 document.getElementById('closeProductModal').onclick = () => productModal.classList.remove('show');
 productModal.onclick = (e) => { if (e.target === productModal) productModal.classList.remove('show'); };
 
