@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBkDSz0qBIfG9_ASb-JH2YSsmqFAPgrTSQ",
@@ -13,7 +14,9 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
+export const auth = getAuth(app); // Auth যুক্ত করা হলো
 
+// Anonymous userId (Guest Checkout এর জন্য)
 export function getUserId() {
   let uid = localStorage.getItem('pb_uid');
   if (!uid) {
