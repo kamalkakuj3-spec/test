@@ -204,12 +204,12 @@
   </div>
 </div>
 
-<!-- Bottom Navigation (Contact বাদ, Search & Profile যোগ) -->
+<!-- Bottom Navigation (Home, Search, Profile, Contact, Admin) -->
 <nav class="bottom">
   <a href="index.html" class="active"><span>🏠</span>Home</a>
   <a href="#" id="navSearchBtn"><span>🔍</span>Search</a>
   <a href="login.html" id="navProfileBtn"><span>👤</span>Profile</a>
-  <a href="cart.html"><span>🛒</span>Cart</a>
+  <a href="contact.html"><span>📞</span>Contact</a>
   <a href="admin.html"><span>⚙️</span>Admin</a>
 </nav>
 
@@ -524,7 +524,7 @@ function showCenterToast(msg) {
   setTimeout(() => centerToast.classList.remove('show'), 2000);
 }
 
-// Cart count (UID পরিবর্তন হলে আবার লোড হবে)
+// Cart count
 let cartUnsubscribe = null;
 function loadCartCount(currentUid) {
   if (cartUnsubscribe) cartUnsubscribe();
@@ -535,7 +535,6 @@ function loadCartCount(currentUid) {
   });
 }
 
-// Auth state পরিবর্তনের সাথে কার্ট লোড
 onAuthStateChanged(auth, (user) => {
   const currentUid = user ? user.uid : getUserId();
   loadCartCount(currentUid);
