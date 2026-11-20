@@ -87,9 +87,57 @@
   .modal-btn{width:100%;padding:14px;background:#ff6b00;color:#fff;border:none;border-radius:10px;
              font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
   .modal-btn.cancel{background:#eee;color:#666;margin-top:8px}
+
+  /* === PREMIUM POPUP DESIGN === */
+  .popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+    z-index: 99999; display: none; align-items: center; justify-content: center;
+  }
+  .popup-overlay.show { display: flex; }
+  .popup-box {
+    background: #fff; border-radius: 24px; padding: 30px 25px;
+    width: 85%; max-width: 320px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    transform: scale(0.7); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .popup-overlay.show .popup-box {
+    transform: scale(1); opacity: 1;
+  }
+  .popup-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+    font-size: 40px; color: #fff;
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s;
+  }
+  .popup-overlay.show .popup-icon { transform: scale(1); }
+  .popup-icon.success { background: linear-gradient(135deg, #00b09b, #96c93d); box-shadow: 0 10px 20px rgba(0,176,155,0.4); }
+  .popup-icon.error { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 10px 20px rgba(231,76,60,0.4); }
+  .popup-message {
+    font-size: 17px; font-weight: 700; color: #333;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.4s ease 0.35s;
+  }
+  .popup-overlay.show .popup-message { opacity: 1; transform: translateY(0); }
+  .popup-subtext {
+    font-size: 13px; color: #888; margin-top: 8px;
+    opacity: 0; transition: all 0.4s ease 0.45s;
+  }
+  .popup-overlay.show .popup-subtext { opacity: 1; }
 </style>
 </head>
 <body>
+
+<!-- Premium Popup -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-icon" id="popupIcon">✓</div>
+    <div class="popup-message" id="popupMsg">Success!</div>
+    <div class="popup-subtext" id="popupSubtext"></div>
+  </div>
+</div>
 
 <header>
   <a href="index.html">←</a>
@@ -160,6 +208,36 @@ const uid = getUserId();
 let cartData = {};
 let deliveryCharge = 60;
 
+// === PREMIUM POPUP FUNCTION ===
+function showPopup(type, message, subtext = '') {
+  const overlay = document.getElementById('popupOverlay');
+  const icon = document.getElementById('popupIcon');
+  const msg = document.getElementById('popupMsg');
+  const sub = document.getElementById('popupSubtext');
+  
+  overlay.classList.remove('show');
+  icon.className = 'popup-icon';
+  icon.textContent = '';
+  void overlay.offsetWidth;
+  
+  if (type === 'success') {
+    icon.classList.add('success');
+    icon.textContent = '✓';
+    msg.textContent = message || 'Success!';
+  } else {
+    icon.classList.add('error');
+    icon.textContent = '✕';
+    msg.textContent = message || 'Error!';
+  }
+  sub.textContent = subtext;
+  
+  overlay.classList.add('show');
+  
+  setTimeout(() => {
+    overlay.classList.remove('show');
+  }, 2500);
+}
+
 function driveUrl(url) {
   if (!url) return 'https://via.placeholder.com/100?text=No';
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
@@ -172,7 +250,6 @@ onValue(ref(db, `carts/${uid}`), (snap) => {
   render();
 });
 
-// Delivery charge change listener
 document.getElementById('deliveryInput').addEventListener('input', (e) => {
   deliveryCharge = +e.target.value || 0;
   updateTotals();
@@ -237,7 +314,6 @@ function updateTotals(subtotal = null) {
   document.getElementById('grandTotal').textContent = '৳' + (subtotal + deliveryCharge);
 }
 
-// Checkout flow
 document.getElementById('checkoutBtn').onclick = () => {
   document.getElementById('checkoutModal').classList.add('show');
 };
@@ -245,7 +321,7 @@ document.getElementById('cancelModal').onclick = () => {
   document.getElementById('checkoutModal').classList.remove('show');
 };
 
-// Confirm Order with Bounce Animation
+// Confirm Order with Bounce Animation and Premium Popup
 document.getElementById('confirmOrder').onclick = async () => {
   const name = document.getElementById('cName').value.trim();
   const phone = document.getElementById('cPhone').value.trim();
@@ -253,12 +329,14 @@ document.getElementById('confirmOrder').onclick = async () => {
   const payment = document.getElementById('cPayment').value;
   const btn = document.getElementById('confirmOrder');
   
-  if (!name || !phone || !address) return alert('সব তথ্য পূরণ করুন');
+  if (!name || !phone || !address) {
+    showPopup('error', 'সব তথ্য পূরণ করুন', 'Name, Phone, Address required');
+    return;
+  }
   
   // Bounce animation
   btn.classList.add('btn-bouncing');
   
-  // Wait for animation to finish (600ms) before processing
   setTimeout(async () => {
     btn.classList.remove('btn-bouncing');
     btn.textContent = 'Processing...';
@@ -281,10 +359,17 @@ document.getElementById('confirmOrder').onclick = async () => {
       
       await remove(ref(db, `carts/${uid}`));
       document.getElementById('checkoutModal').classList.remove('show');
-      alert('✅ Order confirmed! We will contact you soon.');
-      location.href = 'index.html';
+      
+      // Show success popup
+      showPopup('success', 'অর্ডার কনফার্ম হয়েছে!', 'আমরা শীঘ্রই যোগাযোগ করবো');
+      
+      // Redirect after popup finishes
+      setTimeout(() => {
+        location.href = 'index.html';
+      }, 2500);
+      
     } catch (e) {
-      alert('❌ Order failed: ' + e.message);
+      showPopup('error', 'অর্ডার ব্যর্থ হয়েছে', e.message);
       btn.textContent = 'Confirm Order';
       btn.disabled = false;
     }
